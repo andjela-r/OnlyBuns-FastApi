@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, Text, TIMESTAMP
 from app.db.base import Base
+from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = "registereduser"
@@ -18,3 +19,7 @@ class User(Base):
     datecreated = Column(TIMESTAMP)
     lastlogin = Column(TIMESTAMP)
     isadmin = Column(Boolean, default=False)
+
+    likes = relationship("Like", back_populates="user", cascade="all, delete-orphan")
+    posts = relationship("Post", back_populates="user", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")

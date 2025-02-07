@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, Boolean, ForeignKey
 from app.db.base import Base
+from sqlalchemy.orm import relationship
 
 class Post(Base):
     __tablename__ = "post"
@@ -15,3 +16,7 @@ class Post(Base):
     comments = Column(Integer, default=0)
     isdeleted = Column(Boolean, default=False)
     isforad = Column(Boolean, default=False)
+
+    user = relationship("User", back_populates="posts")
+    likes = relationship("Like", back_populates="post", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")

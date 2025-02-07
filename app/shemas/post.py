@@ -9,7 +9,7 @@ class PostBase(BaseModel):
     location: Optional[str]
 
 class PostCreate(PostBase):
-    registereduserid: int
+    pass
 
 class PostUpdate(PostBase):
     description: Optional[str]
