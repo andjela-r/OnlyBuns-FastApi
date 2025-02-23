@@ -3,6 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 class PostBase(BaseModel):
+    registereduserid: int
     description: Optional[str]
     image: Optional[str]
     compressedimage: Optional[str]
@@ -11,17 +12,20 @@ class PostBase(BaseModel):
 class PostCreate(PostBase):
     pass
 
-class PostUpdate(PostBase):
+class PostUpdate(BaseModel):
     description: Optional[str]
+    image: Optional[str]
+    compressedimage: Optional[str]
+    location: Optional[str]
 
 class PostResponse(PostBase):
     id: int
     registereduserid: int
     timecreated: datetime
-    likes: int
-    comments: int
+    likes_count: int = 0
+    comments_count: int = 0
     isdeleted: bool
     isforad: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True

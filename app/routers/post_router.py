@@ -1,25 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.shemas.post import PostCreate, PostResponse, PostUpdate
+from app.shemas.post import PostBase, PostResponse, PostUpdate
 from app.models.post import Post
 from app.models.user import User
-from app.models.comment import Comment
-from app.models.like import Like
-from typing import List
-from sqlalchemy import func
 
 router = APIRouter()
 
 # Kreiranje novog posta
 @router.post("/", response_model=PostResponse)
-def create_post(post: PostCreate, db: Session = Depends(get_db)):
+def create_post(post: PostBase, db: Session = Depends(get_db)):
     # Proveri da li korisnik postoji
     if not db.query(User).filter(User.id == post.registereduserid).first():
         raise HTTPException(status_code=404, detail="User not found")
 
     # Kreiranje novog posta
     db_post = Post(
+        registereduserid = post.registereduserid,
         description=post.description,
         image=post.image,
         location=post.location
@@ -30,7 +27,7 @@ def create_post(post: PostCreate, db: Session = Depends(get_db)):
     return db_post
 
 # Ažuriranje postojećeg posta
-@router.put("/{postid}", response_model=PostResponse)
+@router.put("/{postid}", response_model=PostUpdate)
 def update_post(postid: int, post: PostUpdate, db: Session = Depends(get_db)):
     db_post = db.query(Post).filter(Post.id == postid).first()
     if not db_post:
@@ -57,7 +54,7 @@ def delete_post(postid: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Post deleted"}
 
-@router.get("/posts/")
+@router.get("/")
 def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     posts = db.query(Post).offset(skip).limit(limit).all()
     return posts

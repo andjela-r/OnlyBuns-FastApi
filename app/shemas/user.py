@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from app.shemas.role import RoleResponse
+from typing import Optional, List
 from datetime import datetime
 
 # Base User Schema
@@ -13,6 +14,7 @@ class UserBase(BaseModel):
 # Schema for creating a new user
 class UserCreate(UserBase):
     password: str
+    confirm_password: str
 
 # Schema for updating an existing user
 class UserUpdate(UserBase):
@@ -24,14 +26,15 @@ class UserUpdate(UserBase):
 class UserResponse(UserBase):
     id: int
     followers: int
-    posts: int
+    posts_count: int
     following: int
     isactivated: bool
+    roles: List[RoleResponse]  # Include roles in response
     datecreated: datetime
     lastlogin: Optional[datetime]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 

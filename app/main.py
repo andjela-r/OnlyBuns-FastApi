@@ -1,8 +1,8 @@
-from fastapi import FastAPI, HTTPException, Depends
+import uvicorn
+from fastapi import FastAPI
 from app.routers.user_router import router as user_router
 from app.db.session import engine
 from app.db.base import Base
-from fastapi import FastAPI
 from app.routers.like_router import router as like_router
 from app.routers.comment_router import router as comment_router
 from app.routers.post_router import router as post_router
@@ -18,18 +18,20 @@ app = FastAPI(title="OnlyBuns API", description="API for OnlyBuns, the rabbit so
 Base.metadata.create_all(bind=engine)
 
 # Include routers
-app.include_router(user_router, tags=["Users"])
+app.include_router(user_router, prefix="/users", tags=["Users"])
+app.include_router(like_router, prefix="/likes", tags= ["Likes"])
+
+app.include_router(comment_router, prefix="/comments", tags= ["Comment"])
+
+app.include_router(post_router, prefix="/posts", tags= ["Post"])
 
 # Root endpoint
 @app.get("/")
 def read_root():
     return {"message": "Welcome to OnlyBuns API!"}
 
-app.include_router(like_router, tags= ["Likes"])
-
-app.include_router(comment_router, tags= ["Comment"])
-
-app.include_router(post_router, tags= ["Post"])
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 ''''
 #*************************************************************
 #DODATO ZA JWT

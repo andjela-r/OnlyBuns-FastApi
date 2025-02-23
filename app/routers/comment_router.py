@@ -7,9 +7,8 @@ from app.models.post import Post
 from app.models.user import User
 
 router = APIRouter()
-#prefix="/comments", tags=["comments"] 
 
-@router.post("/comments/", response_model=CommentRead)
+@router.post("/", response_model=CommentRead)
 def create_comment(comment: CommentCreate, db: Session = Depends(get_db)):
     # Proveri da li post i korisnik postoje
     if not db.query(Post).filter(Post.id == comment.postid).first():
@@ -33,7 +32,7 @@ def delete_comment(comment_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Comment removed"}
 
-@router.get("/comments/")
+@router.get("/")
 def read_comments(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     comments = db.query(Comment).offset(skip).limit(limit).all()
     return comments
