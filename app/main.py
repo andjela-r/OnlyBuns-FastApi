@@ -7,7 +7,7 @@ from app.routers.like_router import router as like_router
 from app.routers.comment_router import router as comment_router
 from app.routers.post_router import router as post_router
 
-#from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer
 #from passlib.context import CryptContext
 #import jwt
 
@@ -24,6 +24,9 @@ app.include_router(like_router, prefix="/likes", tags= ["Likes"])
 app.include_router(comment_router, prefix="/comments", tags= ["Comment"])
 
 app.include_router(post_router, prefix="/posts", tags= ["Post"])
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 # Root endpoint
 @app.get("/")
