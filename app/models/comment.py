@@ -13,7 +13,7 @@ class Comment(Base):
     content = Column(String, nullable=False)
     userid = Column(Integer, ForeignKey("registereduser.id"), primary_key=True)
     postid = Column(Integer, ForeignKey("post.id"), primary_key=True)
-    timecreated = Column(DateTime, default=datetime.utcnow)
+    timecreated = Column(DateTime, default=datetime.now)
 
     user = relationship("User", back_populates="comments")
     post = relationship("Post", back_populates="comments")

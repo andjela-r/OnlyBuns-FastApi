@@ -12,7 +12,6 @@ from app.models.user import User
 router = APIRouter()
 user_service = UserService()
 
-
 @router.post("/token")
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],

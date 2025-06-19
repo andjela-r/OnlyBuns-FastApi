@@ -11,14 +11,26 @@ services:
     ports:
       - '5432:5432'
 
-  pgadmin:                     # ← add this
+  pgadmin:                     
     image: dpage/pgadmin4
     env_file:
-      - .env                  # loads PGADMIN_DEFAULT_*
+      - .env                  
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     ports:
       - '8080:80'
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./ui-onlybuns
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ui-onlybuns:/src/app
+      - /app/node_modules
     depends_on:
       - db
 

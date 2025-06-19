@@ -18,9 +18,17 @@ class PostUpdate(BaseModel):
     compressedimage: Optional[str]
     location: Optional[str]
 
+class RegisteredUserSchema(BaseModel):
+    id: int
+    name: str
+    surname: str
+
+    class Config:
+        from_attributes = True
+
 class PostResponse(PostBase):
     id: int
-    registereduserid: int
+    user: RegisteredUserSchema
     timecreated: datetime
     likes_count: int = 0
     comments_count: int = 0

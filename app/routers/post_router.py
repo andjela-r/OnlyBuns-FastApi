@@ -2,12 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.shemas.post import PostBase, PostResponse, PostUpdate
+from app.shemas.comment import CommentWithUserAndPost
+from app.services.comment_service import CommentService
 from app.models.post import Post
 from app.models.user import User
 
 router = APIRouter()
-
+comment_service = CommentService()
 # Kreiranje novog posta
+
 @router.post("/", response_model=PostResponse)
 def create_post(post: PostBase, db: Session = Depends(get_db)):
     # Proveri da li korisnik postoji
@@ -27,9 +30,9 @@ def create_post(post: PostBase, db: Session = Depends(get_db)):
     return db_post
 
 # Ažuriranje postojećeg posta
-@router.put("/{postid}", response_model=PostUpdate)
-def update_post(postid: int, post: PostUpdate, db: Session = Depends(get_db)):
-    db_post = db.query(Post).filter(Post.id == postid).first()
+@router.put("/{post_id}", response_model=PostUpdate)
+def update_post(post_id: int, post: PostUpdate, db: Session = Depends(get_db)):
+    db_post = db.query(Post).filter(Post.id == post_id).first()
     if not db_post:
         raise HTTPException(status_code=404, detail="Post not found")
 
@@ -44,9 +47,9 @@ def update_post(postid: int, post: PostUpdate, db: Session = Depends(get_db)):
     return db_post
 
 # Brisanje postojećeg posta
-@router.delete("/{postid}")
-def delete_post(postid: int, db: Session = Depends(get_db)):
-    db_post = db.query(Post).filter(Post.id == postid).first()
+@router.delete("/{post_id}")
+def delete_post(post_id: int, db: Session = Depends(get_db)):
+    db_post = db.query(Post).filter(Post.id == post_id).first()
     if not db_post:
         raise HTTPException(status_code=404, detail="Post not found")
 
@@ -54,11 +57,16 @@ def delete_post(postid: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Post deleted"}
 
-@router.get("/")
+@router.get("/", response_model=list[PostResponse])
 def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     posts = db.query(Post).offset(skip).limit(limit).all()
     return posts
-'''''''''
+
+@router.get("/{post_id}/comments", response_model=list[CommentWithUserAndPost])
+def read_comments(post_id: int, db: Session = Depends(get_db)):
+    comments = comment_service.get_post_comments(db, post_id)
+    return comments
+''''
 @router.get("/posts/", response_model=List[PostResponse])
 def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     posts = db.query(Post).offset(skip).limit(limit).all()

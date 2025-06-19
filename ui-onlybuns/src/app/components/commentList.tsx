@@ -36,9 +36,9 @@ export default function CommentsList({ postId }: CommentsListProps){
                     <div key={comment.id} className="mb-3 bg-gray-50 my-1 rounded shadow-md p-3">
                         <div className="flex items-center">
                             <p>
-                                <Link href={`/users/${comment.registereduser.name}${comment.registereduser.surname}`}
+                                <Link href={`/users/${comment.user.name}${comment.user.surname}`}
                                       className="font-bold hover:text-blue-800">
-                                    {comment.registereduser.name} {comment.registereduser.surname}
+                                    {comment.user.name} {comment.user.surname}
                                 </Link>
                             </p>
                             <p className="text-sm text-gray-500">&nbsp;•&nbsp;</p>
