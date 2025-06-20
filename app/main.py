@@ -6,6 +6,7 @@ from app.db.base import Base
 from app.routers.like_router import router as like_router
 from app.routers.comment_router import router as comment_router
 from app.routers.post_router import router as post_router
+from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi.security import OAuth2PasswordBearer
 #from passlib.context import CryptContext
@@ -16,6 +17,16 @@ app = FastAPI(title="OnlyBuns API", description="API for OnlyBuns, the rabbit so
 
 # Ensure database tables are created
 Base.metadata.create_all(bind=engine)
+
+# In your FastAPI main.py
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Include routers
 app.include_router(user_router, prefix="/users", tags=["Users"])

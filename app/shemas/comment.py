@@ -1,6 +1,3 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
-from sqlalchemy.orm import relationship
-from app.db.base import Base
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -14,6 +11,30 @@ class CommentCreate(CommentBase):
 
 class CommentRead(CommentBase):
     id: int
+    timecreated: datetime
+
+    class Config:
+        from_attributes = True
+
+class RegisteredUserSchema(BaseModel):
+    id: int
+    name: str
+    surname: str
+
+    class Config:
+        from_attributes = True
+
+class PostSchema(BaseModel):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class CommentWithUserAndPost(BaseModel):
+    id: int
+    content: str
+    user: RegisteredUserSchema
+    post: PostSchema
     timecreated: datetime
 
     class Config:

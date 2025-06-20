@@ -13,6 +13,9 @@ class UserService:
     def find_by_username(self, username: str, db: Session):
         return db.query(User).filter(User.username == username).first()
 
+    def find_by_email(self, email: str, db: Session):
+        return db.query(User).filter(User.email == email).first()
+    
     def find_by_id(self, user_id: int, db: Session):
         return db.query(User).filter(User.id == user_id).first()
 

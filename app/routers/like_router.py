@@ -6,23 +6,25 @@ from app.shemas.like import LikeCreate, LikeRead
 from app.models.like import Like
 from app.models.post import Post 
 from app.models.user import User  
+from app.security import get_current_user
 import psycopg2
 
 
 router = APIRouter()
-#prefix="/likes", tags=["likes"]
 
-@router.post("/", response_model=LikeRead)
-def create_like(like: LikeCreate, db: Session = Depends(get_db)):
+@router.post("/{post_id}/like", response_model=LikeRead)
+def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
     # Proveri da li post i korisnik postoje
-    if not db.query(Post).filter(Post.id == like.postid).first():
+    if not db.query(Post).filter(Post.id == post_id).first():
         raise HTTPException(status_code=404, detail="Post not found")
-    if not db.query(User).filter(User.id == like.userid).first():
+    if not db.query(User).filter(User.id == user.id).first():
         raise HTTPException(status_code=404, detail="User not found")
 
     # Kreiranje lajka
     try:
-        db_like = Like(postid=like.postid, userid=like.userid)
+        db_like = Like(postid=post_id, userid=user.id)
         db.add(db_like)
         db.commit()
         db.refresh(db_like)
