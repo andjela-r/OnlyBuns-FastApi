@@ -41,10 +41,10 @@ const PublicPostFeed: React.FC = () => {
             {posts.map((post) => (
                 <div key={post.id} className="bg-white-20 p-4 rounded shadow-md mb-4 w-full max-w-2xl">
 
-                    {post.registereduser ? (
+                    {post.user ? (
                         <h3 className="text-gray-800 font-bold">
-                            <Link href={`/users/${post.registereduser.name}${post.registereduser.surname}`} className="hover:text-blue-800">
-                                {post.registereduser.name} {post.registereduser.surname}
+                            <Link href={`/users/${post.user.name}${post.user.surname}`} className="hover:text-blue-800">
+                                {post.user.name} {post.user.surname}
                             </Link>
                         </h3>
                     ) : (
