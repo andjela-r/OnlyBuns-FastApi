@@ -16,12 +16,13 @@ user_service = UserService()
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
+
 ):
-    user = user_service.find_by_username(form_data.username, db)
+    user = user_service.find_by_email(form_data.username, db) #it is actually the email
     if not user or not user_service.verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

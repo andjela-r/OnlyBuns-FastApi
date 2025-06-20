@@ -10,6 +10,8 @@ const PublicPostFeed: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const token = localStorage.getItem('access_token');
+    const isAuthenticated = !!token; // Check if user is authenticated based on token presence
 
     useEffect(() => {
         const loadPosts = async () => {
@@ -27,12 +29,20 @@ const PublicPostFeed: React.FC = () => {
     }, []);
 
     const handleLike = (postId: string) => {
+    if (!isAuthenticated) {
         setShowModal(true);
-    };
+        return;
+    }
+    // Call like API here
+};
 
     const handleComment = (postId: string) => {
+    if (!isAuthenticated) {
         setShowModal(true);
-    };
+        return;
+    }
+    // Show comment input or call comment API here
+};
 
     const closeModal = () => setShowModal(false);
 

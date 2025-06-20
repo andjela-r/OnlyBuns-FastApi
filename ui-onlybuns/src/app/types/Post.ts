@@ -1,17 +1,7 @@
 export interface RegisteredUser {
     id: string;
-    // username: string;
     name: string;
     surname: string;
-    // email: string;
-    // address: string;
-    // followers: number;
-    // posts: number;
-    // following: number;
-    // isactivated: boolean;
-    // isadmin: boolean;
-    // datecreated: string;
-    // lastlogin: string | null;
 }
 
 export interface Post {

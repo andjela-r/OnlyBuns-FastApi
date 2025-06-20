@@ -1,10 +1,40 @@
 "use client"
 
-import React, { FormEvent } from 'react'
+import React, { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from "next/link";
 
 export default function Login() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const router = useRouter();
+
+    const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    try {
+        const formData = new URLSearchParams();
+        formData.append('username', email); // FastAPI expects 'username'
+        formData.append('password', password);
+
+        const response = await fetch('http://localhost:8000/users/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString(),
+        });
+        const data = await response.json();
+        if (response.ok && data.access_token) {
+            localStorage.setItem('access_token', data.access_token);
+            router.push('/');
+        } else {
+            setError(data.detail || 'Login failed');
+        }
+    } catch (err) {
+        setError('Network error');
+    }
+};
+
     return (
         <div className="flex items-center justify-center min-h-screen my-10 text-sm ">
             <div className="flex bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl">
@@ -19,7 +49,7 @@ export default function Login() {
                     <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6 drop-shadow-[0_1.1px_1.1px_rgba(0,0,0,0.5)]">
                         Login to Your Account
                     </h2>
-                    <form action="#" method="POST">
+                    <form onSubmit={handleLogin}>
                         <div className="mb-4">
                             <label htmlFor="email" className="block text-gray-600 mb-2">Email</label>
                             <input
@@ -27,6 +57,8 @@ export default function Login() {
                                 id="email"
                                 name="email"
                                 required
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
                                 placeholder="Enter your email"
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
@@ -39,10 +71,14 @@ export default function Login() {
                                 id="password"
                                 name="password"
                                 required
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
                                 placeholder="Enter your password"
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                         </div>
+
+                        {error && <div className="text-red-600 mb-4">{error}</div>}
 
                         <button
                             type="submit"
