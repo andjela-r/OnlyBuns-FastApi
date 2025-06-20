@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from typing import Annotated
 
@@ -74,9 +75,13 @@ def get_all_users(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
-@router.put("/activate/{email}")
+@router.get("/activate/{email}")
 def activate_user(email: str, db: Session = Depends(get_db)):
-    success = user_service.activate_user(email, db)
-    if not success:
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"message": "User activated successfully"}
+    if not user.isactivated:
+        user.isactivated = True
+        db.commit()
+    # Redirect to frontend homepage
+    return RedirectResponse(url="http://localhost:3000/")
