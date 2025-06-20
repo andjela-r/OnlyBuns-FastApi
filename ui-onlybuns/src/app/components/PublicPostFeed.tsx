@@ -9,6 +9,7 @@ import CommentsList from "@/app/components/commentList";
 const PublicPostFeed: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         const loadPosts = async () => {
@@ -26,18 +27,33 @@ const PublicPostFeed: React.FC = () => {
     }, []);
 
     const handleLike = (postId: string) => {
-        console.log(`Liked post with id: ${postId}`);
+        setShowModal(true);
     };
 
-    // Handler for the comment button
     const handleComment = (postId: string) => {
-        console.log(`Commenting on post with id: ${postId}`);
+        setShowModal(true);
     };
+
+    const closeModal = () => setShowModal(false);
+
 
     if (loading) return <div>Loading...</div>;
 
     return (
         <div className="bg-white-20 container mx-auto p-4 flex flex-col items-center max-w-4xl">
+            {showModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded shadow-lg text-center">
+                        <h2 className="text-xl font-bold mb-4">Please log in or register</h2>
+                        <p className="mb-4">You need to be logged in to like or comment on posts.</p>
+                        <div className="flex justify-center gap-4">
+                            <a href="/login" className="bg-pink-400 text-white px-4 py-2 rounded hover:bg-pink-600">Login</a>
+                            <a href="/register" className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Register</a>
+                        </div>
+                        <button onClick={closeModal} className="mt-4 text-gray-500 hover:underline">Close</button>
+                    </div>
+                </div>
+            )}
             {posts.map((post) => (
                 <div key={post.id} className="bg-white-20 p-4 rounded shadow-md mb-4 w-full max-w-2xl">
 
