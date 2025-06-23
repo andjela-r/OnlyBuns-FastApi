@@ -69,9 +69,15 @@ export default function RegisterForm() {
             });
 
             if (!response.ok) {
-                // Handle unsuccessful registration
                 const errorData = await response.json();
-                setErrors(errorData.errors || {});
+                // If backend sends error as {detail: "..."}
+                if (errorData.detail) {
+                    setErrors({ general: errorData.detail });
+                } else if (errorData.errors) {
+                    setErrors(errorData.errors);
+                } else {
+                    setErrors({ general: 'Registration failed. Please try again.' });
+                }
                 setIsSubmitting(false);
                 return;
             }
@@ -89,7 +95,7 @@ export default function RegisterForm() {
 
     return (
         <div className="flex items-center justify-center min-h-screen my-10 text-sm">
-            <div className="flex bg-white p-8 rounded-xl shadow-lg w-full max-w-5xl">
+            <div className="flex bg-white p-8 rounded-xl shadow-lg w-full max-w-5xl">            
                 <div className="w-1/2 h-full center">
                     <img
                         src="images/register.jpg"
@@ -101,7 +107,9 @@ export default function RegisterForm() {
                     <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6 drop-shadow-[0_1.1px_1.1px_rgba(0,0,0,0.5)]">
                         Create Your Account
                     </h2>
-
+                    {errors.general && (
+                        <div className="text-red-600 mb-4 text-center">{errors.general}</div>
+                    )}
                     {formSuccess ? (
                         <div className="text-green-700 text-center mb-6 border-2 rounded-lg text-lg font-bold p-4">
                             <p>Account created successfully! Please check your email to activate your account.</p>
@@ -133,7 +141,7 @@ export default function RegisterForm() {
                                     placeholder="Enter your surname"
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-green-800"
                                 />
-                                {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+                                {errors.surname && <p className="text-red-500 text-sm">{errors.surname}</p>}
                             </div>
 
                             <div className="mb-3">
@@ -206,8 +214,6 @@ export default function RegisterForm() {
                                 {errors.confirm_password &&
                                     <p className="text-red-500 text-sm">{errors.confirm_password}</p>}
                             </div>
-
-
                             <button
                                 type="submit"
                                 className="w-full bg-green-700 text-white py-3 rounded-lg hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
