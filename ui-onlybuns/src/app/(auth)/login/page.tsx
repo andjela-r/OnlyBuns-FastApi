@@ -27,6 +27,7 @@ export default function Login() {
         const data = await response.json();
         if (response.ok && data.access_token) {
             localStorage.setItem('access_token', data.access_token);
+            window.dispatchEvent(new Event('authChanged'));
             router.push('/');
         } else {
             // Check for activation error

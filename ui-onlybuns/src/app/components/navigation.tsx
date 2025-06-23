@@ -9,16 +9,21 @@ export const Navigation = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     useEffect(() => {
-        const token = typeof window !== "undefined" ? localStorage.getItem('access_token') : null;
-        setIsAuthenticated(!!token);
-    }, []);
+        const checkAuth = () => {
+            const token = localStorage.getItem('access_token');
+            setIsAuthenticated(!!token);
+        };
+            checkAuth();
+            window.addEventListener('authChanged', checkAuth);
+            return () => window.removeEventListener('authChanged', checkAuth);
+        }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem('access_token');
-        setIsAuthenticated(false);
-        setDropdownOpen(false);
-        window.location.href = '/';
-    };
+        const handleLogout = () => {
+            localStorage.removeItem('access_token');
+            setIsAuthenticated(false);
+            setDropdownOpen(false);
+            window.location.href = '/';
+        };
 
     return (
         <nav className="text-xl relative">
@@ -32,13 +37,13 @@ export const Navigation = () => {
                 <div className="inline-block relative">
                     <button
                         onClick={() => setDropdownOpen((open) => !open)}
-                        className="border-2 border-green-900 text-green-900 py-2 px-4 rounded-xl hover:bg-green-900 hover:text-white transition-colors"
+                        className="border-2 border-pink-400 bg-pink-400 text-white py-2 px-4 rounded-xl hover:bg-pink-600 hover:border-pink-600 transition-colors"
                     >
                         Profile
                     </button>
                     {dropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-10">
-                            <Link
+                        <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-10 text-green-900">
+                            {/* <Link
                                 href="/profile"
                                 className="block px-4 py-2 hover:bg-gray-100"
                                 onClick={() => setDropdownOpen(false)}
@@ -51,9 +56,9 @@ export const Navigation = () => {
                                 onClick={() => setDropdownOpen(false)}
                             >
                                 Settings
-                            </Link>
+                            </Link> */}
                             <button
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                                className="block w-full text-left px-4 py-2 hover:bg-red-500  hover:border-red-600 hover:text-white"
                                 onClick={handleLogout}
                             >
                                 Logout
