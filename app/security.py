@@ -44,4 +44,10 @@ async def get_current_user(
     user = user_service.find_by_username(username, db)
     if user is None:
         raise credentials_exception
+    if not user.isactivated:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is not activated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user

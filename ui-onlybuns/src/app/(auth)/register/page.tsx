@@ -10,7 +10,7 @@ export default function RegisterForm() {
         email: '',
         username: '',
         password: '',
-        confirmPassword: ''
+        confirm_password: ''
     });
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -35,7 +35,7 @@ export default function RegisterForm() {
         if (!formData.password) errors.password = 'Password is required';
         else if (formData.password.length < 6) errors.password = 'Password must be at least 6 characters';
 
-        if (formData.password !== formData.confirmPassword) errors.confirmPassword = 'Passwords do not match';
+        if (formData.password !== formData.confirm_password) errors.confirm_password = 'Passwords do not match';
 
         if (!formData.name) errors.name = 'Name is required';
         if (!formData.surname) errors.surname = 'Surname is required';
@@ -60,7 +60,7 @@ export default function RegisterForm() {
 
         try {
             // Send a POST request to your backend
-            const response = await fetch('http://localhost:8080/auth/register', {
+            const response = await fetch('http://localhost:8000/users/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -192,19 +192,19 @@ export default function RegisterForm() {
                             </div>
 
                             <div className="mb-3">
-                                <label htmlFor="confirmPassword" className="block text-gray-600">Confirm
+                                <label htmlFor="confirm_password" className="block text-gray-600">Confirm
                                     Password</label>
                                 <input
                                     type="password"
-                                    id="confirmPassword"
-                                    name="confirmPassword"
-                                    value={formData.confirmPassword}
+                                    id="confirm_password"
+                                    name="confirm_password"
+                                    value={formData.confirm_password}
                                     onChange={handleInputChange}
                                     placeholder="Confirm your password"
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-green-800"
                                 />
-                                {errors.confirmPassword &&
-                                    <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
+                                {errors.confirm_password &&
+                                    <p className="text-red-500 text-sm">{errors.confirm_password}</p>}
                             </div>
 
 

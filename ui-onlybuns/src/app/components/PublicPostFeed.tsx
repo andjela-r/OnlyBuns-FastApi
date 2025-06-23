@@ -10,10 +10,14 @@ const PublicPostFeed: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-    const token = localStorage.getItem('access_token');
-    const isAuthenticated = !!token; // Check if user is authenticated based on token presence
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
+        const token = localStorage.getItem('access_token');
+        setIsAuthenticated(!!token);
+        console.log("Auth token:", token, "isAuthenticated:", !!token);
+
+
         const loadPosts = async () => {
             try {
                 // Fetch posts
@@ -33,6 +37,7 @@ const PublicPostFeed: React.FC = () => {
         setShowModal(true);
         return;
     }
+    console.log(`Liked post with ID: ${postId}`);
     // Call like API here
 };
 
@@ -41,6 +46,7 @@ const PublicPostFeed: React.FC = () => {
         setShowModal(true);
         return;
     }
+    console.log(`Commented on post with ID: ${postId}`);
     // Show comment input or call comment API here
 };
 
