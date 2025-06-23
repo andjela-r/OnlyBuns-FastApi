@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.models.user import User
-from app.shemas.user import UserCreate, UserUpdate
+from app.shemas.user import UserCreate, UserUpdate, UserResponse
 from app.services.role_service import RoleService
 from pybloom_live import BloomFilter
 from passlib.context import CryptContext
@@ -90,13 +90,17 @@ class UserService:
         user = self.find_by_id(user_id, db)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return user.followers if user.followers else []
-    
+        if user.followers:
+            return [self.find_by_id(following.idfollower, db) for following in user.followers]
+        return []
+
     def get_user_following(self, user_id: int, db: Session):
         user = self.find_by_id(user_id, db)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return user.following if user.following else []
+        if user.following:
+            return [self.find_by_id(following.idfollowing, db) for following in user.following]
+        return []
     
     def update_user(self, user_id: int, user_data: UserUpdate, db: Session):
         user = self.find_by_id(user_id, db)

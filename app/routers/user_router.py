@@ -63,7 +63,7 @@ async def login(
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
 
-@router.put("/me", response_model=UserUpdate)
+@router.put("/me", response_model=UserResponse)
 def update_user(
     user_update: UserUpdate,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -80,11 +80,11 @@ def update_user(
 def get_my_posts(current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
     return user_service.get_user_posts(current_user.id, db)
 
-@router.get("/me/followers")
+@router.get("/me/followers", response_model=list[UserResponse])
 def get_my_followers(current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
     return user_service.get_user_followers(current_user.id, db)
 
-@router.get("/me/following")
+@router.get("/me/following", response_model=list[UserResponse])
 def get_my_following(current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
     return user_service.get_user_following(current_user.id, db)
 

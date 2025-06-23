@@ -27,9 +27,6 @@ class UserUpdate(BaseModel):
 # Schema for returning user data
 class UserResponse(UserBase):
     id: int
-    #followers: int
-    #posts_count: int
-    #following: int
     isactivated: bool
     roles: List[RoleResponse]  # Include roles in response
     datecreated: datetime
