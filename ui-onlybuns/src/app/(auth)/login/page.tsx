@@ -8,6 +8,7 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [showActivationModal, setShowActivationModal] = useState(false);
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -26,9 +27,15 @@ export default function Login() {
         const data = await response.json();
         if (response.ok && data.access_token) {
             localStorage.setItem('access_token', data.access_token);
+            window.dispatchEvent(new Event('authChanged'));
             router.push('/');
         } else {
-            setError(data.detail || 'Login failed');
+            // Check for activation error
+            if (data.detail && data.detail.includes('Account not activated')) {
+                setShowActivationModal(true); 
+            } else {
+                setError(data.detail || 'Login failed');
+            }
         }
     } catch (err) {
         setError('Network error');
@@ -36,6 +43,21 @@ export default function Login() {
 };
 
     return (
+        <>
+        {showActivationModal && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-6 rounded shadow-lg text-center">
+                    <h2 className="text-xl font-bold mb-4">Account Not Activated</h2>
+                    <p className="mb-4">Please check your email and activate your account before logging in.</p>
+                    <button
+                        onClick={() => setShowActivationModal(false)}
+                        className="mt-4 text-gray-500 hover:underline"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        )}
         <div className="flex items-center justify-center min-h-screen my-10 text-sm ">
             <div className="flex bg-white p-8 rounded-xl shadow-lg w-full max-w-3xl">
                 <div className="w-1/2 h-full">
@@ -99,5 +121,6 @@ export default function Login() {
                 </div>
             </div>
         </div>
+        </>
     );
             }
