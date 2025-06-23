@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 
 from app.db.session import get_db
+from app.routers.email_router import send_mail, EmailSchema, EmailUser
 from app.shemas.user import UserCreate, UserResponse
 from app.services.user_service import UserService
 from app.security import create_access_token, get_current_user
@@ -44,7 +45,13 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     Register a new user with hashed password and default role.
     """
     try:
-        return user_service.register_user(user, db)
+        user_registered = user_service.register_user(user, db)
+        email_data = EmailSchema(
+            receiver_mail=user.email,
+            user=EmailUser(name=user.name, surname=user.surname)
+        )
+        send_mail(email_data)
+        return user_registered
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

@@ -5,20 +5,20 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 
-class User(BaseModel):
+class EmailUser(BaseModel):
     name: str
     surname: str
 
 class EmailSchema(BaseModel):
-    receiver: EmailStr
-    user: User
+    receiver_mail: EmailStr
+    user: EmailUser
 
 router = APIRouter()
 
 @router.post("/send_mail")
-def test_email(email: EmailSchema) -> JSONResponse:
+def send_mail(email: EmailSchema) -> JSONResponse:
     sender = "noreply@onlybuns.com"
-    receiver = email.receiver
+    receiver = email.receiver_mail
     full_name = f"{email.user.name} {email.user.surname}"
     activation_link = f"http://localhost:8000/users/activate/{receiver}"
 
