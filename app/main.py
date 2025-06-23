@@ -8,9 +8,16 @@ from app.routers.comment_router import router as comment_router
 from app.routers.post_router import router as post_router
 from app.routers.email_router import router as email_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.services.user_service import populate_username_bloom
+from app.db.session import SessionLocal
+
 
 # Initialize FastAPI app
+
 app = FastAPI(title="OnlyBuns API", description="API for OnlyBuns, the rabbit social network")
+db = SessionLocal()
+populate_username_bloom(db)  # This fills the global username_bloom in user_service.py
+db.close()
 
 # Ensure database tables are created
 Base.metadata.create_all(bind=engine)

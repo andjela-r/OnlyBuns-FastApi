@@ -3,11 +3,17 @@ from sqlalchemy.exc import IntegrityError
 from app.models.user import User
 from app.shemas.user import UserCreate
 from app.services.role_service import RoleService
+from pybloom_live import BloomFilter
 from passlib.context import CryptContext
 import time
 from fastapi import HTTPException
 
+username_bloom = BloomFilter(capacity=10000, error_rate=0.001)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def populate_username_bloom(db: Session):
+    for user in db.query(User.username).all():
+        username_bloom.add(user.username)
 
 class UserService:
     def __init__(self):
@@ -27,6 +33,9 @@ class UserService:
 
     def register_user(self, user_data: UserCreate, db: Session):
         time.sleep(10)  # For simulating a delay 
+        
+        if user_data.username in username_bloom:
+            raise HTTPException(status_code=400, detail="Username is **probably** already taken")
 
         try:
             hashed_password = pwd_context.hash(user_data.password)
