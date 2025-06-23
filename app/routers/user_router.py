@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from typing import Annotated
-
+import time
 from app.db.session import get_db
 from app.routers.email_router import send_mail, EmailSchema, EmailUser
 from app.shemas.user import UserCreate, UserResponse
@@ -11,15 +11,40 @@ from app.services.user_service import UserService
 from app.security import create_access_token, get_current_user
 from app.models.user import User
 
+login_attempts = {}
+
+MAX_ATTEMPTS = 5
+WINDOW_SECONDS = 60
+
 router = APIRouter()
 user_service = UserService()
 
+def is_rate_limited(ip: str):
+    now = time.time()
+    attempts = login_attempts.get(ip, [])
+    
+    attempts = [t for t in attempts if now - t < WINDOW_SECONDS]
+    login_attempts[ip] = attempts
+    if len(attempts) >= MAX_ATTEMPTS:
+        return True
+
+    attempts.append(now)
+    login_attempts[ip] = attempts
+    return False
+
 @router.post("/token")
 async def login(
+    request: Request,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
 
 ):
+    ip = request.client.host
+    if is_rate_limited(ip):
+        raise HTTPException(
+            status_code=429,
+            detail="Too many login attempts. Please try again in a minute."
+        )
     user = user_service.find_by_email(form_data.username, db) #it is actually the email
     if not user or not user_service.verify_password(form_data.password, user.password):
         raise HTTPException(
