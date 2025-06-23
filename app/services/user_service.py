@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.models.user import User
-from app.shemas.user import UserCreate
+from app.shemas.user import UserCreate, UserUpdate
 from app.services.role_service import RoleService
 from pybloom_live import BloomFilter
 from passlib.context import CryptContext
@@ -79,4 +79,42 @@ class UserService:
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return pwd_context.verify(plain_password, hashed_password)
+    
+    def get_user_posts(self, user_id: int, db: Session):
+        user = self.find_by_id(user_id, db)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return user.posts if user.posts else []
+    
+    def get_user_followers(self, user_id: int, db: Session):
+        user = self.find_by_id(user_id, db)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return user.followers if user.followers else []
+    
+    def get_user_following(self, user_id: int, db: Session):
+        user = self.find_by_id(user_id, db)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return user.following if user.following else []
+    
+    def update_user(self, user_id: int, user_data: UserUpdate, db: Session):
+        user = self.find_by_id(user_id, db)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        if user_data.password:
+            if user_data.password != user_data.confirm_password:
+                raise HTTPException(status_code=400, detail="Passwords do not match")
+            
+            user.password = self.get_password_hash(user_data.password)
+        
+        user.name = user_data.name or user.name
+        user.surname = user_data.surname or user.surname
+        user.address = user_data.address or user.address
+        
+        db.commit()
+        db.refresh(user)
+        return user
+    
     

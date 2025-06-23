@@ -17,17 +17,19 @@ class UserCreate(UserBase):
     confirm_password: str
 
 # Schema for updating an existing user
-class UserUpdate(UserBase):
+class UserUpdate(BaseModel):
     name: Optional[str]
     surname: Optional[str]
     address: Optional[str]
+    password: Optional[str] 
+    confirm_password: Optional[str] 
 
 # Schema for returning user data
 class UserResponse(UserBase):
     id: int
-    followers: int
-    posts_count: int
-    following: int
+    #followers: int
+    #posts_count: int
+    #following: int
     isactivated: bool
     roles: List[RoleResponse]  # Include roles in response
     datecreated: datetime

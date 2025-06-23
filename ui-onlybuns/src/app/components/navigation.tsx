@@ -42,26 +42,20 @@ export const Navigation = () => {
                         Profile
                     </button>
                     {dropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-10 text-green-900">
-                            {/* <Link
-                                href="/profile"
-                                className="block px-4 py-2 hover:bg-gray-100"
-                                onClick={() => setDropdownOpen(false)}
-                            >
-                                My Profile
-                            </Link>
+                        <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10 text-green-900">
                             <Link
-                                href="/settings"
-                                className="block px-4 py-2 hover:bg-gray-100"
+                                href="/profile"
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                                 onClick={() => setDropdownOpen(false)}
                             >
-                                Settings
-                            </Link> */}
+                                Profile
+                            </Link>
+                            <hr />
                             <button
                                 className="block w-full text-left px-4 py-2 hover:bg-red-500  hover:border-red-600 hover:text-white"
                                 onClick={handleLogout}
                             >
-                                Logout
+                                Odjavi se
                             </button>
                         </div>
                     )}
