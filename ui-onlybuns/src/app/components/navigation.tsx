@@ -55,7 +55,7 @@ export const Navigation = () => {
                                 className="block w-full text-left px-4 py-2 hover:bg-red-500  hover:border-red-600 hover:text-white"
                                 onClick={handleLogout}
                             >
-                                Odjavi se
+                                Logout
                             </button>
                         </div>
                     )}
