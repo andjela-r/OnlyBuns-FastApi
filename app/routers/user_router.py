@@ -6,7 +6,7 @@ from typing import Annotated
 import time
 from app.db.session import get_db
 from app.routers.email_router import send_mail, EmailSchema, EmailUser
-from app.shemas.user import UserCreate, UserResponse
+from app.shemas.user import UserCreate, UserResponse, UserUpdate
 from app.services.user_service import UserService
 from app.security import create_access_token, get_current_user
 from app.models.user import User
@@ -62,6 +62,31 @@ async def login(
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
+
+@router.put("/me", response_model=UserResponse)
+def update_user(
+    user_update: UserUpdate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+):
+
+    try:
+        updated_user = user_service.update_user(current_user.id, user_update, db)
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/me/posts")
+def get_my_posts(current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
+    return user_service.get_user_posts(current_user.id, db)
+
+@router.get("/me/followers", response_model=list[UserResponse])
+def get_my_followers(current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
+    return user_service.get_user_followers(current_user.id, db)
+
+@router.get("/me/following", response_model=list[UserResponse])
+def get_my_following(current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
+    return user_service.get_user_following(current_user.id, db)
 
 
 @router.post("/", response_model=UserResponse)
@@ -119,3 +144,4 @@ def activate_user(email: str, db: Session = Depends(get_db)):
         db.commit()
     # Redirect to frontend homepage
     return RedirectResponse(url="http://localhost:3000/")
+

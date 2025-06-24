@@ -4,6 +4,9 @@ from pydantic import EmailStr, BaseModel
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class EmailUser(BaseModel):
     name: str
@@ -60,7 +63,7 @@ Please visit the following link to activate your account:
     # Send email
     with smtplib.SMTP("sandbox.smtp.mailtrap.io", 2525) as server:
         server.starttls()
-        server.login("c8da8dbb3c4378", "ee7a4680cbcfb1")
+        server.login(os.getenv("MAILTRAP_USERNAME"), os.getenv("MAILTRAP_PASSWORD"))
         server.sendmail(sender, [receiver], message.as_string())
 
     return JSONResponse(content={"message": f"Email sent to {full_name} at {receiver}"})

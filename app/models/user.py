@@ -3,6 +3,8 @@ from app.db.base import Base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
+from app.models.following import Following
+
 # Association table for Many-to-Many User-Role relationship
 user_role_table = Table(
     "user_role",
@@ -21,9 +23,6 @@ class User(Base):
     surname = Column(String(50))
     email = Column(String(100), unique=True, nullable=False)
     address = Column(Text)
-    followers = Column(Integer, default=0)
-    posts_count = Column(Integer, name="posts", default=0) # number of posts
-    following = Column(Integer, default=0)
     isactivated = Column(Boolean, default=False)
     datecreated = Column(TIMESTAMP, server_default=func.now())
     lastlogin = Column(TIMESTAMP)
@@ -36,3 +35,6 @@ class User(Base):
     likes = relationship("Like", back_populates="user", cascade="all, delete-orphan")
     posts = relationship("Post", back_populates="user", cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
+
+    following = relationship("Following", foreign_keys=[Following.idfollower], back_populates="follower")
+    followers = relationship("Following", foreign_keys=[Following.idfollowing], back_populates="followed")
