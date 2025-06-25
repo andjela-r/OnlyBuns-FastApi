@@ -3,20 +3,10 @@ from typing import Optional
 from datetime import datetime
 
 class PostBase(BaseModel):
-    registereduserid: int
     description: Optional[str]
     image: Optional[str]
     compressedimage: Optional[str]
-    location: Optional[str]
-
-class PostCreate(PostBase):
-    pass
-
-class PostUpdate(BaseModel):
-    description: Optional[str]
-    image: Optional[str]
-    compressedimage: Optional[str]
-    location: Optional[str]
+    location_name: Optional[str]  
 
 class RegisteredUserSchema(BaseModel):
     id: int

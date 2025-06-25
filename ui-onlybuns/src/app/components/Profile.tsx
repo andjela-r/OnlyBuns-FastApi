@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Post, RegisteredUser } from '../types/Post'; 
 import { UserProfile } from '../types/UserProfile';
-import { XIcon } from "../components/Icons";
+import { XIcon, PlusIcon } from "../components/Icons";
 
 
 export const PostCard = ({ post }: { post: Post }) => (
@@ -17,10 +17,23 @@ export const EditProfileModal = ({ isOpen, onClose, currentUser, onSave }: { isO
     const [surname, setSurname] = useState(currentUser.surname);
     const [address, setAddress] = useState(currentUser.address);
     const [password, setPassword] = useState('');
+    const [latitude, setLatitude] = useState(currentUser.latitude !== undefined && currentUser.latitude !== null ? String(currentUser.latitude) : '');
+    const [longitude, setLongitude] = useState(currentUser.longitude !== undefined && currentUser.longitude !== null ? String(currentUser.longitude) : '');
+    const [showCoords, setShowCoords] = useState(false);
     const [confirm_password, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
 
-    useEffect(() => { if(isOpen) { setName(currentUser.name); setSurname(currentUser.surname); setAddress(currentUser.address || ''); setPassword(''); setConfirmPassword(''); setError(''); } }, [isOpen, currentUser]);
+    useEffect(() => { if(isOpen) { 
+        setName(currentUser.name); 
+        setSurname(currentUser.surname); 
+        setAddress(currentUser.address || ''); 
+        setLatitude(currentUser.latitude !== undefined && currentUser.latitude !== null ? String(currentUser.latitude) : ''); 
+        setLongitude(currentUser.longitude !== undefined && currentUser.longitude !== null ? String(currentUser.longitude) : ''); 
+        setShowCoords(false);
+        setPassword(''); 
+        setConfirmPassword(''); 
+        setError(''); 
+    } }, [isOpen, currentUser]);
     if (!isOpen) return null;
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -28,9 +41,13 @@ export const EditProfileModal = ({ isOpen, onClose, currentUser, onSave }: { isO
         setError('');
         if (password && password !== confirm_password) { setError('Passwords do not match.'); return; }
         try {
-            const dataToUpdate: { name: string, surname: string, address: string, password?: string, confirm_password?: string } = { name, surname, address };
-            if (password) { dataToUpdate.password = password; }
-            if (confirm_password) { dataToUpdate.confirm_password = confirm_password; }
+            const dataToUpdate: any = { name, surname, address };
+            if (showCoords) {
+                dataToUpdate.latitude = latitude === '' ? null : parseFloat(latitude);
+                dataToUpdate.longitude = longitude === '' ? null : parseFloat(longitude);
+            }
+            if (password) dataToUpdate.password = password;
+            if (confirm_password) dataToUpdate.confirm_password = confirm_password;
             await onSave(dataToUpdate);
             onClose();
         } catch (err) { setError(err instanceof Error ? err.message : 'An error occurred.'); }
@@ -45,10 +62,38 @@ export const EditProfileModal = ({ isOpen, onClose, currentUser, onSave }: { isO
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Name" className="w-full p-3 border rounded-lg"/>
                     <input type="text" value={surname} onChange={e => setSurname(e.target.value)} placeholder="Surname" className="w-full p-3 border rounded-lg"/>
-                    <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Address" className="w-full p-3 border rounded-lg"/>
+                    <div className="flex items-center gap-2">
+                        <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Address" className="w-full p-3 border rounded-lg"/>
+                        <button type="button" onClick={() => setShowCoords(s => !s)} className="p-2 bg-green-100 rounded-full hover:bg-green-200" title="Add coordinates">
+                            <PlusIcon className="w-5 h-5 text-green-700" />
+                        </button>
+                    </div>
+                    {showCoords && (
+                        <div className="flex gap-2">
+                            <input
+                                type="number"
+                                step="any"
+                                value={latitude}
+                                onChange={e => setLatitude(e.target.value)}
+                                placeholder="Latitude"
+                                className="w-1/2 p-3 border rounded-lg"
+                            />
+                            <input
+                                type="number"
+                                step="any"
+                                value={longitude}
+                                onChange={e => setLongitude(e.target.value)}
+                                placeholder="Longitude"
+                                className="w-1/2 p-3 border rounded-lg"
+                            />
+                        </div>
+                    )}
                     <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="New Password (optional)" className="w-full p-3 border rounded-lg"/>
                     <input type="password" value={confirm_password} onChange={e => setConfirmPassword(e.target.value)} placeholder="Confirm New Password" className="w-full p-3 border rounded-lg"/>
-                    <div className="flex justify-end gap-4 mt-6"><button type="button" onClick={onClose} className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cancel</button><button type="submit" className="px-6 py-2 rounded-lg bg-green-700 text-white hover:bg-green-800">Save</button></div>
+                    <div className="flex justify-end gap-4 mt-6">
+                        <button type="button" onClick={onClose} className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cancel</button>
+                        <button type="submit" className="px-6 py-2 rounded-lg bg-green-700 text-white hover:bg-green-800">Save</button>
+                    </div>
                 </form>
             </div>
         </div>

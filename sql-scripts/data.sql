@@ -1,32 +1,54 @@
 INSERT INTO ROLE (name) VALUES ('ROLE_USER');
 INSERT INTO ROLE (name) VALUES ('ROLE_ADMIN');
 
+INSERT INTO location (name, latitude, longitude) VALUES
+('Bulevar Evrope 12, Novi Sad', 45.2510, 19.8365),
+('Nemanjina 4, Beograd', 44.8075, 20.4600),
+('Kralja Petra Prvog 24, Niš', 43.3209, 21.8958),
+('Trg Kralja Milana 5, Niš', 43.3192, 21.8957),
+('Kneza Miloša 16, Kragujevac', 44.0128, 20.9110),
+('Cara Lazara 7, Subotica', 46.1005, 19.6678),
+('Vojvode Mišića 8, Čačak', 43.8915, 20.3498),
+('Kralja Aleksandra Obrenovića 10, Leskovac', 42.9982, 21.9462),
+('Trg Republike 1, Beograd', 44.8168, 20.4606),
+('Bulevar Oslobođenja 1, Novi Sad', 45.2551, 19.8453),
+('Bulevar kralja Aleksandra 73, Beograd', 44.8058, 20.4781),
+('Knez Mihailova 5, Beograd', 44.8176, 20.4572),
+('Zmaj Jovina 22, Novi Sad', 45.2550, 19.8452),
+('Cara Dušana 13, Niš', 43.3190, 21.8958),
+('Kralja Petra I 12, Kragujevac', 44.0142, 20.9394),
+('Trg slobode 1, Subotica', 46.1003, 19.6676),
+('Obilićev venac 18, Beograd', 44.8170, 20.4575),
+('Bulevar Oslobođenja 102, Novi Sad', 45.2517, 19.8369),
+('Vojvode Stepe 14, Čačak', 43.8914, 20.3497),
+('Kralja Aleksandra 2, Leskovac', 42.9981, 21.9461);
+
 INSERT INTO registereduser 
 (username, password, name, surname, email, address, isactivated, isadmin) 
 VALUES
-('alice_smith', 'password1', 'Alice', 'Smith', 'alice@example.com', '123 Main St', TRUE, FALSE),
-('bob_brown', 'password2', 'Bob', 'Brown', 'bob@example.com', '456 Oak Ave', TRUE, FALSE),
-('admin_user', 'adminpass', 'Admin', 'RegisteredUser', 'admin@example.com', '789 Admin Rd', TRUE, TRUE),
-('charlie_jones', 'password3', 'Charlie', 'Jones', 'charlie@example.com', '321 Cedar St', TRUE, FALSE),
-('dana_white', 'password4', 'Dana', 'White', 'dana@example.com', '654 Pine Blvd', TRUE, FALSE),
-('eve_williams', 'password5', 'Eve', 'Williams', 'eve@example.com', '987 Maple Dr', TRUE, FALSE),
-('frank_moore', 'password6', 'Frank', 'Moore', 'frank@example.com', '123 Elm St', TRUE, FALSE),
-('grace_hill', 'password7', 'Grace', 'Hill', 'grace@example.com', '456 Spruce Ct', TRUE, FALSE),
-('henry_adams', 'password8', 'Henry', 'Adams', 'henry@example.com', '789 Birch Ln', TRUE, FALSE),
-('ivy_green', 'password9', 'Ivy', 'Green', 'ivy@example.com', '159 Walnut Rd', TRUE, FALSE),
-('jack_thomas', 'password10', 'Jack', 'Thomas', 'jack@example.com', '753 Poplar Ave', TRUE, FALSE),
-('kate_martin', 'password11', 'Kate', 'Martin', 'kate@example.com', '951 Chestnut Blvd', TRUE, FALSE),
-('admin_user2', 'adminpass2', 'Admin', 'UserTwo', 'admin2@example.com', '123 Admin Pl', TRUE, TRUE),
-('lucas_smith', 'password12', 'Lucas', 'Smith', 'lucas@example.com', '852 Hickory St', TRUE, FALSE),
-('mia_walker', 'password13', 'Mia', 'Walker', 'mia@example.com', '654 Redwood Ln', TRUE, FALSE),
-('noah_baker', 'password14', 'Noah', 'Baker', 'noah@example.com', '147 Beech St', TRUE, FALSE),
-('olivia_turner', 'password15', 'Olivia', 'Turner', 'olivia@example.com', '369 Magnolia Rd', TRUE, FALSE),
-('peter_parker', 'password16', 'Peter', 'Parker', 'peter@example.com', '258 Cypress Dr', TRUE, FALSE),
-('quinn_lee', 'password17', 'Quinn', 'Lee', 'quinn@example.com', '135 Willow Ct', TRUE, FALSE),
-('rachel_clark', 'password18', 'Rachel', 'Clark', 'rachel@example.com', '159 Fir Ave', TRUE, FALSE),
-('samuel_taylor', 'password19', 'Samuel', 'Taylor', 'samuel@example.com', '753 Laurel Ln', TRUE, FALSE),
-('tina_miller', 'password20', 'Tina', 'Miller', 'tina@example.com', '357 Maple St', TRUE, FALSE),
-('victor_rogers', 'password21', 'Victor', 'Rogers', 'victor@example.com', '951 Pine Blvd', TRUE, FALSE);
+('alice_smith', 'password1', 'Alice', 'Smith', 'alice@example.com', 'Bulevar kralja Aleksandra 73, Beograd', TRUE, FALSE),
+('bob_brown', 'password2', 'Bob', 'Brown', 'bob@example.com', 'Knez Mihailova 5, Beograd', TRUE, FALSE),
+('admin_user', 'adminpass', 'Admin', 'RegisteredUser', 'admin@example.com', 'Zmaj Jovina 22, Novi Sad', TRUE, TRUE),
+('charlie_jones', 'password3', 'Charlie', 'Jones', 'charlie@example.com', 'Cara Dušana 13, Niš', TRUE, FALSE),
+('dana_white', 'password4', 'Dana', 'White', 'dana@example.com', 'Kralja Petra I 12, Kragujevac', TRUE, FALSE),
+('eve_williams', 'password5', 'Eve', 'Williams', 'eve@example.com', 'Trg slobode 1, Subotica', TRUE, FALSE),
+('frank_moore', 'password6', 'Frank', 'Moore', 'frank@example.com', 'Obilićev venac 18, Beograd', TRUE, FALSE),
+('grace_hill', 'password7', 'Grace', 'Hill', 'grace@example.com', 'Bulevar Oslobođenja 102, Novi Sad', TRUE, FALSE),
+('henry_adams', 'password8', 'Henry', 'Adams', 'henry@example.com', 'Vojvode Stepe 14, Čačak', TRUE, FALSE),
+('ivy_green', 'password9', 'Ivy', 'Green', 'ivy@example.com', 'Kralja Aleksandra 2, Leskovac', TRUE, FALSE),
+('jack_thomas', 'password10', 'Jack', 'Thomas', 'jack@example.com', 'Bulevar Evrope 12, Novi Sad', TRUE, FALSE),
+('kate_martin', 'password11', 'Kate', 'Martin', 'kate@example.com', 'Nemanjina 4, Beograd', TRUE, FALSE),
+('admin_user2', 'adminpass2', 'Admin', 'UserTwo', 'admin2@example.com', 'Trg Republike 1, Beograd', TRUE, TRUE),
+('lucas_smith', 'password12', 'Lucas', 'Smith', 'lucas@example.com', 'Bulevar Oslobođenja 1, Novi Sad', TRUE, FALSE),
+('mia_walker', 'password13', 'Mia', 'Walker', 'mia@example.com', 'Kneza Miloša 16, Kragujevac', TRUE, FALSE),
+('noah_baker', 'password14', 'Noah', 'Baker', 'noah@example.com', 'Cara Lazara 7, Subotica', TRUE, FALSE),
+('olivia_turner', 'password15', 'Olivia', 'Turner', 'olivia@example.com', 'Vojvode Mišića 8, Čačak', TRUE, FALSE),
+('peter_parker', 'password16', 'Peter', 'Parker', 'peter@example.com', 'Kralja Aleksandra Obrenovića 10, Leskovac', TRUE, FALSE),
+('quinn_lee', 'password17', 'Quinn', 'Lee', 'quinn@example.com', 'Trg Kralja Milana 5, Niš', TRUE, FALSE),
+('rachel_clark', 'password18', 'Rachel', 'Clark', 'rachel@example.com', 'Kralja Petra Prvog 24, Niš', TRUE, FALSE),
+('samuel_taylor', 'password19', 'Samuel', 'Taylor', 'samuel@example.com', 'Bulevar kralja Aleksandra 73, Beograd', TRUE, FALSE),
+('tina_miller', 'password20', 'Tina', 'Miller', 'tina@example.com', 'Knez Mihailova 5, Beograd', TRUE, FALSE),
+('victor_rogers', 'password21', 'Victor', 'Rogers', 'victor@example.com', 'Zmaj Jovina 22, Novi Sad', TRUE, FALSE);
 
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (1, 1); --USER 1 ROLE USER
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (2, 1); --USER 2 ROLE USER
@@ -53,29 +75,28 @@ INSERT INTO USER_ROLE (user_id, role_id) VALUES (22, 1); --USER 2 ROLE USER
 INSERT INTO USER_ROLE (user_id, role_id) VALUES (23, 1); --USER 2 ROLE USER
 
 INSERT INTO "post"
-(registereduserid, description, image, location, timecreated)
+(registereduserid, description, image, location_name, timecreated)
 VALUES
-('1', 'Sharing tips on bunny care', 'images/post1.jpg', 'Belgrade', '2024-10-15 08:30:00'),
-('2', 'New bunny play area setup', 'images/post2.jpg', 'Novi Sad', '2024-10-16 09:45:00'),
-('4', 'Bunny enjoying fresh carrots', 'images/post3.jpg', 'Kragujevac', '2024-10-17 12:05:00'),
-('5', 'Grooming advice for bunnies', 'images/post4.jpg', 'Subotica', '2024-10-18 15:20:00'),
-('6', 'Bunny exploring the backyard', 'images/post5.jpg', 'Budva', '2024-10-19 11:10:00'),
-('7', 'Building a bunny hideout', 'images/post6.jpg', 'Zlatibor', '2024-10-20 14:30:00'),
-('8', 'Bunny hopping around the garden', 'images/post7.jpg', 'Nis', '2024-10-21 07:40:00'),
-('9', 'Bunny playdate fun', 'images/post8.jpg', 'Pancevo', '2024-10-22 10:55:00'),
-('10', 'Favorite bunny treats', 'images/post9.jpg', 'Backa Topola', '2024-10-23 13:30:00'),
-('1', 'Creating a cozy bunny corner', 'images/post10.jpg', 'Belgrade', '2024-10-24 08:00:00'),
-('4', 'Bunny enjoying a sunny day', 'images/post11.jpg', 'Kragujevac', '2024-10-25 16:45:00'),
-('12', 'Setting up a bunny obstacle course', 'images/post12.jpg', 'Leskovac', '2024-10-26 09:30:00'),
-('14', 'Bunny bonding session', 'images/post13.jpg', 'Vrsac', '2024-10-27 11:40:00'),
-('15', 'Tips for bunny health checks', 'images/post14.jpg', 'Jagodina', '2024-10-28 14:50:00'),
-('2', 'Bunny napping in a hammock', 'images/post15.jpg', 'Novi Sad', '2024-10-29 15:25:00'),
-('6', 'Bunny running in the park', 'images/post16.jpg', 'Budva', '2024-10-30 12:15:00'),
-('7', 'Bunny playing with new toys', 'images/post17.jpg', 'Zlatibor', '2024-11-01 16:00:00'),
-('8', 'Bunny enjoying a new treat', 'images/post18.jpg', 'Nis', '2024-11-03 10:30:00'),
-('9', 'Bunny meeting a new friend', 'images/post19.jpg', 'Pancevo', '2024-11-05 13:45:00'),
-('10', 'Bunny’s first adventure outside', 'images/post20.jpg', 'Backa Topola', '2024-11-07 09:00:00');
-
+(1, 'Sharing tips on bunny care', 'images/post1.jpg', 'Bulevar kralja Aleksandra 73, Beograd', '2024-10-15 08:30:00'),
+(2, 'New bunny play area setup', 'images/post2.jpg', 'Knez Mihailova 5, Beograd', '2024-10-16 09:45:00'),
+(4, 'Bunny enjoying fresh carrots', 'images/post3.jpg', 'Kralja Petra I 12, Kragujevac', '2024-10-17 12:05:00'),
+(5, 'Grooming advice for bunnies', 'images/post4.jpg', 'Trg slobode 1, Subotica', '2024-10-18 15:20:00'),
+(6, 'Bunny exploring the backyard', 'images/post5.jpg', 'Obilićev venac 18, Beograd', '2024-10-19 11:10:00'),
+(7, 'Building a bunny hideout', 'images/post6.jpg', 'Bulevar Oslobođenja 102, Novi Sad', '2024-10-20 14:30:00'),
+(8, 'Bunny hopping around the garden', 'images/post7.jpg', 'Vojvode Stepe 14, Čačak', '2024-10-21 07:40:00'),
+(9, 'Bunny playdate fun', 'images/post8.jpg', 'Kralja Aleksandra 2, Leskovac', '2024-10-22 10:55:00'),
+(10, 'Favorite bunny treats', 'images/post9.jpg', 'Bulevar Evrope 12, Novi Sad', '2024-10-23 13:30:00'),
+(1, 'Creating a cozy bunny corner', 'images/post10.jpg', 'Bulevar kralja Aleksandra 73, Beograd', '2024-10-24 08:00:00'),
+(4, 'Bunny enjoying a sunny day', 'images/post11.jpg', 'Kralja Petra I 12, Kragujevac', '2024-10-25 16:45:00'),
+(12, 'Setting up a bunny obstacle course', 'images/post12.jpg', 'Nemanjina 4, Beograd', '2024-10-26 09:30:00'),
+(14, 'Bunny bonding session', 'images/post13.jpg', 'Bulevar Oslobođenja 1, Novi Sad', '2024-10-27 11:40:00'),
+(15, 'Tips for bunny health checks', 'images/post14.jpg', 'Kneza Miloša 16, Kragujevac', '2024-10-28 14:50:00'),
+(2, 'Bunny napping in a hammock', 'images/post15.jpg', 'Knez Mihailova 5, Beograd', '2024-10-29 15:25:00'),
+(6, 'Bunny running in the park', 'images/post16.jpg', 'Obilićev venac 18, Beograd', '2024-10-30 12:15:00'),
+(7, 'Bunny playing with new toys', 'images/post17.jpg', 'Bulevar Oslobođenja 102, Novi Sad', '2024-11-01 16:00:00'),
+(8, 'Bunny enjoying a new treat', 'images/post18.jpg', 'Vojvode Stepe 14, Čačak', '2024-11-03 10:30:00'),
+(9, 'Bunny meeting a new friend', 'images/post19.jpg', 'Kralja Aleksandra 2, Leskovac', '2024-11-05 13:45:00'),
+(10, 'Bunny’s first adventure outside', 'images/post20.jpg', 'Bulevar Evrope 12, Novi Sad', '2024-11-07 09:00:00');
 
 INSERT INTO "following" (idfollower, idfollowing)
 VALUES

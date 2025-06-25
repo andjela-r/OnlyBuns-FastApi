@@ -5,6 +5,16 @@ DROP TABLE IF EXISTS "post" CASCADE;
 DROP TABLE IF EXISTS "following";
 DROP TABLE IF EXISTS "like";
 DROP TABLE IF EXISTS "comment";
+DROP TABLE IF EXISTS "location";
+
+-- Location Table
+CREATE TABLE "location" (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL UNIQUE,
+                    latitude FLOAT,
+                    longitude FLOAT,
+                    CONSTRAINT unique_lat_long UNIQUE (latitude, longitude)
+);
 
 -- RegisteredUser Table
 CREATE TABLE "registereduser" (
@@ -14,14 +24,14 @@ CREATE TABLE "registereduser" (
                       name VARCHAR(50),
                       surname VARCHAR(50),
                       email VARCHAR(100) UNIQUE NOT NULL,
-                      address TEXT,
-                    --   followers INT DEFAULT 0,
-                    --   posts INT DEFAULT 0,
-                    --   following INT DEFAULT 0,
+                      address VARCHAR(255),
                       isactivated BOOLEAN DEFAULT FALSE,
                       datecreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                       lastlogin TIMESTAMP,
-                      isadmin BOOLEAN DEFAULT FALSE
+                      isadmin BOOLEAN DEFAULT FALSE,
+                      FOREIGN KEY (address) REFERENCES location(name)
+
+                      
 );
 
 -- Post Table
@@ -31,13 +41,15 @@ CREATE TABLE "post" (
                       description TEXT,
                       image TEXT,
                       compressedimage TEXT,
-                      location TEXT,
+                      location_name VARCHAR(255),
                       timecreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                       likes INT DEFAULT 0,
                       comments INT DEFAULT 0,
                       isdeleted BOOLEAN DEFAULT FALSE,
                       isforad BOOLEAN DEFAULT FALSE,
-                      FOREIGN KEY (registereduserid) REFERENCES registereduser(id) ON DELETE CASCADE
+                      FOREIGN KEY (registereduserid) REFERENCES registereduser(id) ON DELETE CASCADE,
+                      FOREIGN KEY (location_name) REFERENCES location(name)
+
 );
 --Following Table
 CREATE TABLE "following" (

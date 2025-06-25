@@ -1,28 +1,33 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.shemas.post import PostBase, PostResponse, PostUpdate
+from app.security import get_current_user
+from app.shemas.post import PostBase, PostResponse
 from app.shemas.comment import CommentWithUserAndPost
 from app.services.comment_service import CommentService
 from app.models.post import Post
 from app.models.user import User
+import time
 
 router = APIRouter()
 comment_service = CommentService()
 # Kreiranje novog posta
 
 @router.post("/", response_model=PostResponse)
-def create_post(post: PostBase, db: Session = Depends(get_db)):
+def create_post(post: PostResponse, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     # Proveri da li korisnik postoji
-    if not db.query(User).filter(User.id == post.registereduserid).first():
+    if not db.query(User).filter(User.id == user.id).first():
         raise HTTPException(status_code=404, detail="User not found")
 
     # Kreiranje novog posta
     db_post = Post(
-        registereduserid = post.registereduserid,
+        registereduserid = user.id,
         description=post.description,
         image=post.image,
-        location=post.location
+        location_name=post.location.name if post.location.name else None,
+        timecreated = time.now(),
+        compressedimage=post.compressedimage if post.compressedimage else None,
+        isforad=post.isforad if post.isforad is not None else False
     )
     db.add(db_post)
     db.commit()
@@ -30,8 +35,8 @@ def create_post(post: PostBase, db: Session = Depends(get_db)):
     return db_post
 
 # Ažuriranje postojećeg posta
-@router.put("/{post_id}", response_model=PostUpdate)
-def update_post(post_id: int, post: PostUpdate, db: Session = Depends(get_db)):
+@router.put("/{post_id}", response_model=PostBase)
+def update_post(post_id: int, post: PostBase, db: Session = Depends(get_db)):
     db_post = db.query(Post).filter(Post.id == post_id).first()
     if not db_post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -40,8 +45,8 @@ def update_post(post_id: int, post: PostUpdate, db: Session = Depends(get_db)):
     db_post.description = post.description if post.description else db_post.description
     db_post.image = post.image if post.image else db_post.image
     db_post.compressedimage = post.compressedimage if post.compressedimage else db_post.compressedimage
-    db_post.location = post.location if post.location else db_post.location
-    
+    db_post.location_name = post.location.name if post.location.name else db_post.location_name
+
     db.commit()
     db.refresh(db_post)
     return db_post

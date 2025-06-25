@@ -21,19 +21,36 @@ class UserUpdate(BaseModel):
     name: Optional[str]
     surname: Optional[str]
     address: Optional[str]
-    password: Optional[str] 
-    confirm_password: Optional[str] 
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    password: Optional[str] = None
+    confirm_password: Optional[str] = None 
 
 # Schema for returning user data
 class UserResponse(UserBase):
     id: int
     isactivated: bool
-    roles: List[RoleResponse]  # Include roles in response
+    # roles: List[RoleResponse]  
+    address: str
     datecreated: datetime
     lastlogin: Optional[datetime]
 
     class Config:
         from_attributes = True
+
+class UserResponseWithLocation(UserBase):
+    id: int
+    isactivated: bool
+    # roles: List[RoleResponse]  
+    address: str
+    datecreated: datetime
+    lastlogin: Optional[datetime]
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
 
 
 
