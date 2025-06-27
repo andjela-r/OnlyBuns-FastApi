@@ -53,6 +53,16 @@ export const Navigation = () => {
                         `}>
                         Explore
                     </Link>
+                    <Link
+                        href="/trends"
+                        className={`mr-4 py-2 px-5 rounded-xl  shadow-sm transition-all duration-200
+                            ${pathname === "/trends" 
+                                ? "text-green-900 bg-accent border-2 border-accent  hover:bg-green-900 hover:text-white hover:border-green-900" 
+                                : "text-gray-700  hover:bg-green-900 hover:text-white hover:border-green-900"}
+                        `}>
+                        Trends
+                    </Link>
+                    
                     <button
                         onClick={() => setDropdownOpen((open) => !open)}
                         className="border-2 border-pink-400 bg-pink-400 text-white py-2 px-4 rounded-xl hover:bg-pink-600 hover:border-pink-600 transition-colors"
