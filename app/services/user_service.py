@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.models.user import User
 from app.shemas.user import UserCreate, UserUpdate
 from app.services.role_service import RoleService
+from app.services.location_service import LocationService
 from pybloom_live import BloomFilter
 from passlib.context import CryptContext
 import time
@@ -10,6 +11,8 @@ from fastapi import HTTPException
 
 username_bloom = BloomFilter(capacity=10000, error_rate=0.001)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+location_service = LocationService()
 
 def populate_username_bloom(db: Session):
     for user in db.query(User.username).all():
@@ -32,27 +35,29 @@ class UserService:
         return db.query(User).all()
 
     def register_user(self, user_data: UserCreate, db: Session):
-        time.sleep(10)  # For simulating a delay 
+        time.sleep(2)  # For simulating a delay 
 
         if user_data.username in username_bloom:
             raise HTTPException(status_code=400, detail="Username is **probably** already taken")
         try:
-            with db.begin():  # Start a transaction
-                hashed_password = pwd_context.hash(user_data.password)
-                user = User(
-                    name=user_data.name,
-                    surname=user_data.surname,
-                    address=user_data.address,
-                    email=user_data.email,
-                    username=user_data.username,
-                    password=hashed_password,
-                    isactivated=False
-                )
-                role = self.role_service.find_by_name("ROLE_USER", db)
-                if not role:
-                    raise ValueError("Default role 'ROLE_USER' not found")
-                user.roles = [role]
-                db.add(user)
+        #with db.begin():  # Start a transaction
+            hashed_password = pwd_context.hash(user_data.password)
+            user = User(
+                name=user_data.name,
+                surname=user_data.surname,
+                address=user_data.address,
+                email=user_data.email,
+                username=user_data.username,
+                password=hashed_password,
+                isactivated=False
+            )
+            role = self.role_service.find_by_name("ROLE_USER", db)
+            if not role:
+                raise ValueError("Default role 'ROLE_USER' not found")
+            user.roles = [role]
+            db.add(user)
+            db.commit()
+            username_bloom.add(user.username)  # Add username to Bloom filter
             db.refresh(user)
             return user
         
@@ -106,7 +111,7 @@ class UserService:
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
-        if user_data.password:
+        if user_data.password and user_data.confirm_password:
             if user_data.password != user_data.confirm_password:
                 raise HTTPException(status_code=400, detail="Passwords do not match")
             
@@ -115,6 +120,12 @@ class UserService:
         user.name = user_data.name or user.name
         user.surname = user_data.surname or user.surname
         user.address = user_data.address or user.address
+        
+        location = location_service.get_location_by_name(db, user.address)
+
+        if location:
+            location.latitude = user_data.latitude if user_data.latitude is not None else location.latitude
+            location.longitude = user_data.longitude if user_data.longitude is not None else location.longitude
         
         db.commit()
         db.refresh(user)

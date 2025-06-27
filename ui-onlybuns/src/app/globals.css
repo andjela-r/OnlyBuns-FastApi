@@ -1,31 +1,44 @@
+/* Keep your Google Fonts import */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
+/* Standard Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #fafafa;
-  --foreground: #242424;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
+  /* Light Mode (Default) Color Palette */
   :root {
-    --background: #fafafa;
-    --foreground: #242424;
+    --background: #fdfaf9;   /* Warm Off-White */
+    --foreground: #5c544f;   /* Warm Dark Brown (Text) */
+    --primary: #ffdaf0;      /* Soft Rosy Pink (Header/Footer) */
+    --secondary: #e0f0e9;    /* Gentle Mint Green */
+    --accent: #8db596;       /* Muted Green (Hovers/Links) */
+
+    --border-color: #f7e0df; /* A border color to match the pink primary */
+
+    --button_bg: #ffecf7; /* Button background color */
   }
-}
 
-html {
-  font-family: "Roboto Thin", sans-serif;
-}
+  /* Dark Mode Color Palette */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #26211f;   /* Deep, warm charcoal */
+      --foreground: #f2e9e4;   /* Soft, light cream (Text) */
+      --primary: #443736;      /* Muted, dark rosy brown */
+      --secondary: #313d36;    /* Dark, muted green */
+      --accent: #a4d4ae;       /* Brighter pastel green for dark mode pop */
 
-h1 {
-  font-family: "Roboto Light", sans-serif;
-}
+      --border-color: #5c4a48; /* A border color for the dark primary */
+    }
+  }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: "Roboto Thin", sans-serif;
+  /*
+   * We remove the specific font-family rules from here.
+   * The className on the <body> tag in RootLayout.tsx will handle the font.
+   * This makes your app more compatible with Next.js font optimization.
+  */
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
 }

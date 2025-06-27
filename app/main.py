@@ -7,6 +7,7 @@ from app.routers.like_router import router as like_router
 from app.routers.comment_router import router as comment_router
 from app.routers.post_router import router as post_router
 from app.routers.email_router import router as email_router
+from app.routers.location_router import router as location_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.services.user_service import populate_username_bloom
 from app.db.session import SessionLocal
@@ -36,6 +37,7 @@ app.include_router(like_router, prefix="/likes", tags= ["Likes"])
 app.include_router(comment_router, prefix="/comments", tags= ["Comment"])
 app.include_router(post_router, prefix="/posts", tags= ["Post"])
 app.include_router(email_router, prefix="/email", tags=["Email"])
+app.include_router(location_router, prefix="/locations", tags=["Location"])
 
 # Root endpoint
 @app.get("/")

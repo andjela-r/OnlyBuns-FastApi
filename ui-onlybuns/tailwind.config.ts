@@ -15,7 +15,12 @@ const config: Config = {
         'greenish': '#AED48F',
         'mid': '#D8D67C',
         'nude': '#F5C090',
-        'orangy': '#F9926A'
+        'orangy': '#F9926A',
+        primary: 'var(--primary)',
+        secondary: 'var(--secondary)',
+        accent: 'var(--accent)',
+        button_bg: 'var(--button-bg)',
+        'border-color': 'var(--border-color)',
       },
     },
   },

@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, Table, ForeignKey, TIMESTAMP
+from sqlalchemy import Column, Integer, String, Boolean, Table, ForeignKey, TIMESTAMP
 from app.db.base import Base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
 from app.models.following import Following
+from app.models.location import Location
 
 # Association table for Many-to-Many User-Role relationship
 user_role_table = Table(
@@ -22,7 +23,7 @@ class User(Base):
     name = Column(String(50))
     surname = Column(String(50))
     email = Column(String(100), unique=True, nullable=False)
-    address = Column(Text)
+    address = Column(String(255), ForeignKey("location.name"))
     isactivated = Column(Boolean, default=False)
     datecreated = Column(TIMESTAMP, server_default=func.now())
     lastlogin = Column(TIMESTAMP)
@@ -38,3 +39,5 @@ class User(Base):
 
     following = relationship("Following", foreign_keys=[Following.idfollower], back_populates="follower")
     followers = relationship("Following", foreign_keys=[Following.idfollowing], back_populates="followed")
+
+    address_location = relationship("Location", foreign_keys=[address], backref="users")

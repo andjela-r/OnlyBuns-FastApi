@@ -6,4 +6,6 @@ export interface UserProfile extends RegisteredUser {
     followers: number;
     posts_count: number;
     following: number;
+    latitude?: number;
+    longitude?: number;
 }

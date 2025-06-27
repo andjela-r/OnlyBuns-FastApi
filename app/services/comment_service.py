@@ -1,8 +1,6 @@
-from sqlalchemy.orm import Session
 from sqlalchemy.orm import Session, joinedload
 from app.models.comment import Comment
-from app.models.comment import Comment
-from app.models.user import User  # Adjust import if needed
+from app.models.user import User  
 
 class CommentService:
 
@@ -17,7 +15,7 @@ class CommentService:
         comments = (
             db.query(Comment)
             .options(
-                joinedload(Comment.user),   # adjust attribute name if needed
+                joinedload(Comment.user),   
                 joinedload(Comment.post)
             )
             .filter(Comment.postid == post_id)

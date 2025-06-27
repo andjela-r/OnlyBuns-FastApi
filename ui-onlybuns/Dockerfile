@@ -3,10 +3,10 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+
+RUN npm install --legacy-peer-deps
 
 COPY . .
-COPY next.config.ts ./next.config.ts
 
 EXPOSE 3000
 

@@ -2,12 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import InvalidRequestError
 from typing import Annotated
 import time
 from app.db.session import get_db
 from app.routers.email_router import send_mail, EmailSchema, EmailUser
-from app.shemas.user import UserCreate, UserResponse, UserUpdate
+from app.shemas.user import UserCreate, UserResponse, UserResponseWithLocation, UserUpdate
 from app.services.user_service import UserService
+from app.services.location_service import LocationService
 from app.security import create_access_token, get_current_user
 from app.models.user import User
 
@@ -18,6 +20,7 @@ WINDOW_SECONDS = 60
 
 router = APIRouter()
 user_service = UserService()
+location_service = LocationService()
 
 def is_rate_limited(ip: str):
     now = time.time()
@@ -56,12 +59,34 @@ async def login(
         raise HTTPException(status_code=403, detail="Account not activated. Please check your email.")
 
     access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "user_name": user.name}
 
 
-@router.get("/me", response_model=UserResponse)
-async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
-    return current_user
+@router.get("/me", response_model=UserResponseWithLocation)
+async def read_users_me(current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
+    latitude = None
+    longitude = None
+    if current_user.address:
+        location = location_service.get_location_by_name(db, current_user.address)
+        if location:
+            latitude = location.latitude
+            longitude = location.longitude
+    
+    result = UserResponseWithLocation(
+        id=current_user.id,
+        isactivated=current_user.isactivated,
+        # roles=[role.name for role in current_user.roles],
+        datecreated=current_user.datecreated,
+        lastlogin=current_user.lastlogin,
+        username=current_user.username,
+        email=current_user.email,
+        name=current_user.name,
+        surname=current_user.surname,
+        address=current_user.address,
+        latitude=latitude,
+        longitude=longitude
+    )
+    return result
 
 @router.put("/me", response_model=UserResponse)
 def update_user(
@@ -71,6 +96,9 @@ def update_user(
 ):
 
     try:
+        if  not location_service.get_location_by_name(db, user_update.address):
+            location_service.create_location(db, user_update.address, None, None)
+            
         updated_user = user_service.update_user(current_user.id, user_update, db)
         return updated_user
     except ValueError as e:
@@ -95,13 +123,22 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     Register a new user with hashed password and default role.
     """
     try:
+        if  not location_service.get_location_by_name(db, user.address):
+            location_service.create_location(db, user.address, None, None)
+        
         user_registered = user_service.register_user(user, db)
+        
         email_data = EmailSchema(
             receiver_mail=user.email,
             user=EmailUser(name=user.name, surname=user.surname)
         )
         send_mail(email_data)
         return user_registered
+    
+    except InvalidRequestError as e:
+        db.close()
+        raise HTTPException(status_code=500, detail="Database transaction error: " + str(e))
+
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

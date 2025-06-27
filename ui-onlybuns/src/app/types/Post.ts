@@ -1,3 +1,5 @@
+import { Location } from "./Location";
+
 export interface RegisteredUser {
     id: string;
     name: string;
@@ -10,7 +12,8 @@ export interface Post {
     description: string;
     image: string | null;
     compressedImage: string | null;
-    location: string | null;
+    location_name: string | null;
+    location: Location | null;  // Location information
     timecreated: string;
     likes: number;
     comments: number;
