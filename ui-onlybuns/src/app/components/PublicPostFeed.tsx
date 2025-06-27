@@ -18,7 +18,7 @@ const PublicPostFeed: React.FC = () => {
 
         const loadPosts = async () => {
             try {
-                const fetchedPosts = await fetchPublicPosts();
+                const fetchedPosts = await fetchPublicPosts(10);
                 setPosts(fetchedPosts);
             } catch (error) {
                 console.error(error);
@@ -71,7 +71,7 @@ const PublicPostFeed: React.FC = () => {
                         <div className="flex items-center mb-4">
                             <div>
                                 {post.user ? (
-                                    <Link href={`/users/${post.user.name}${post.user.surname}`} className="font-bold text-gray-800 hover:text-pink-600 transition-colors">
+                                    <Link href={`/users/${post.user.name}_${post.user.surname}`} className="font-bold text-gray-800 hover:text-pink-600 transition-colors">
                                         {post.user.name} {post.user.surname}
                                     </Link>
                                 ) : (
@@ -84,10 +84,6 @@ const PublicPostFeed: React.FC = () => {
                         <p className="text-gray-700 text-base mb-4">{post.description}</p>
                         
                         <div className="relative w-full h-auto mb-4 bg-gray-100 rounded-lg">
-                             {/*
-                                CHANGE HERE: Added max-h-[500px] to limit height and object-contain to prevent cropping.
-                                A light gray background is added for any letterboxing.
-                             */}
                             <img
                                 src={post.image || '/placeholder.png'}
                                 alt="Post image"
