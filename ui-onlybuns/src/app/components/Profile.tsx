@@ -34,6 +34,7 @@ export const EditProfileModal = ({ isOpen, onClose, currentUser, onSave }: { isO
         setConfirmPassword(''); 
         setError(''); 
     } }, [isOpen, currentUser]);
+
     if (!isOpen) return null;
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -49,6 +50,9 @@ export const EditProfileModal = ({ isOpen, onClose, currentUser, onSave }: { isO
             if (password) dataToUpdate.password = password;
             if (confirm_password) dataToUpdate.confirm_password = confirm_password;
             await onSave(dataToUpdate);
+            if (name !== currentUser.name) {
+                localStorage.setItem('user_name', name);
+            }
             onClose();
         } catch (err) { setError(err instanceof Error ? err.message : 'An error occurred.'); }
     };

@@ -9,6 +9,9 @@ import React from "react";
 export const metadata: Metadata = {
   title: "OnlyBuns",
   description: "Only for Bunnie lovers",
+};
+
+export const viewport: Metadata = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fceae9" },
     { media: "(prefers-color-scheme: dark)", color: "#26211f" },

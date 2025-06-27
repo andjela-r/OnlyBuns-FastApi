@@ -2,44 +2,61 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Post } from '../types/Post';
-import { fetchPublicPosts } from '../lib/api'; // Assuming you have this API function
+import { fetchPublicPosts, getMyProfile, getPostLocation } from '../lib/api'; 
+import { UserProfile } from '../types/UserProfile';
+import { Location } from '../types/Location';
 
-// This is a mock function to add locations to your posts.
-// In a real application, this location data should come from your database with the post.
-const addLocationsToPosts = (posts: Omit<Post, 'location'>[]): Post[] => {
-    const serbiaCenter = { lat: 44.20, lng: 20.92 }; // Centered on Serbia
-
-    return posts.map((post) => ({
-        ...post,
-        location: {
-            name: "Some address", // Using the post title as the location name
-            latitude: serbiaCenter.lat + (Math.random() - 0.5) * 5, // Random locations across a wider area
-            longitude: serbiaCenter.lng + (Math.random() - 0.5) * 5,
-        }
-    }));
+const addLocationsToPosts = async (posts: Post[]): Promise<Post[]> => {
+    const postsWithLocations = await Promise.all(
+        posts.map(async (post) => {
+            if (post.location_name) {
+                try {
+                    const locationData = await getPostLocation(post.location_name);
+                    const location: Location | null = locationData && locationData.name && locationData.latitude && locationData.longitude
+                        ? {
+                            name: locationData.name,
+                            latitude: locationData.latitude,
+                            longitude: locationData.longitude,
+                        }
+                        : null;
+                    return { ...post, location };
+                } catch (e) {
+                    return { ...post, location: null };
+                }
+            } else {
+                return { ...post, location: null };
+            }
+        })
+    );
+    return postsWithLocations;
 };
 
 const MapPage: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
 
     useEffect(() => {
-        const loadPosts = async () => {
+        const loadData = async () => {
             try {
-                const fetchedPosts = await fetchPublicPosts();
-                const postsWithLocations = addLocationsToPosts(fetchedPosts);
+                const [fetchedPosts, fetchedUser] = await Promise.all([
+                    fetchPublicPosts(),
+                    getMyProfile()
+                ]);
+                // Fetch locations for each post
+                const postsWithLocations = await addLocationsToPosts(fetchedPosts);
+                console.log("Posts with locations:", postsWithLocations);
                 setPosts(postsWithLocations);
+                setCurrentUser(fetchedUser);
             } catch (error) {
-                console.error("Failed to fetch posts:", error);
+                console.error("Failed to fetch posts or user:", error);
             } finally {
                 setLoading(false);
             }
         };
-        loadPosts();
+        loadData();
     }, []);
 
-    // The map component needs to be loaded on the client side.
-    // We use next/dynamic to prevent server-side rendering for this component.
     const MapComponent = useMemo(() => dynamic(
         () => import('../components/Map'),
         { 
@@ -48,11 +65,11 @@ const MapPage: React.FC = () => {
         }
     ), []);
 
-    if (loading) return <div>Loading posts...</div>;
+    if (loading || !currentUser) return <div>Loading posts...</div>;
 
     return (
         <div className="w-full h-screen">
-            <MapComponent posts={posts} />
+            <MapComponent posts={posts} currentUser={currentUser} />
         </div>
     );
 };
