@@ -72,7 +72,7 @@ def get_top_likers(
     user: Annotated[User, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ):
-    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+    seven_days_ago = datetime.now() - timedelta(days=7)
 
     def query_top_likers(time_filter=None):
         query = db.query(Like.userid, func.count(Like.postid).label("like_count"))

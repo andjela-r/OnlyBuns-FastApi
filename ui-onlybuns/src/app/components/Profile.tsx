@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Post, RegisteredUser } from '../types/Post'; 
 import { UserProfile } from '../types/UserProfile';
 import { XIcon, PlusIcon } from "../components/Icons";
+import { useRouter } from 'next/navigation'
+
 
 
 export const PostCard = ({ post }: { post: Post }) => (
@@ -22,6 +24,8 @@ export const EditProfileModal = ({ isOpen, onClose, currentUser, onSave }: { isO
     const [showCoords, setShowCoords] = useState(false);
     const [confirm_password, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+    const router = useRouter();
+    
 
     useEffect(() => { if(isOpen) { 
         setName(currentUser.name); 
@@ -52,8 +56,10 @@ export const EditProfileModal = ({ isOpen, onClose, currentUser, onSave }: { isO
             await onSave(dataToUpdate);
             if (name !== currentUser.name) {
                 localStorage.setItem('user_name', name);
+                
             }
             onClose();
+            router.refresh();
         } catch (err) { setError(err instanceof Error ? err.message : 'An error occurred.'); }
     };
     
