@@ -7,6 +7,7 @@ from app.shemas.comment import CommentWithUserAndPost
 from app.services.comment_service import CommentService
 from app.models.post import Post
 from app.models.user import User
+from typing import Optional
 import time
 
 router = APIRouter()
@@ -63,9 +64,11 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     return {"message": "Post deleted"}
 
 @router.get("/", response_model=list[PostResponse])
-def read_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    posts = db.query(Post).offset(skip).limit(limit).all()
-    return posts
+def read_posts(skip: int = 0, limit: Optional[int] = None, db: Session = Depends(get_db)):
+    posts = db.query(Post).offset(skip)
+    if limit is not None:
+        posts = posts.limit(limit)
+    return posts.all()
 
 @router.get("/{post_id}/comments", response_model=list[CommentWithUserAndPost])
 def read_comments(post_id: int, db: Session = Depends(get_db)):

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from app.shemas.like import LikeBase
 
 class PostBase(BaseModel):
     description: Optional[str]
@@ -27,3 +28,6 @@ class PostResponse(PostBase):
 
     class Config:
         from_attributes = True
+
+class PostWLikes(PostResponse):
+    likes: list[LikeBase]
