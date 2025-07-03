@@ -6,6 +6,7 @@ import { Post } from "../types/Post";
 import Link from "next/link";
 
 const API_BASE_URL = "http://localhost:8000";
+const CACHE_TTL = 60 * 1000;
 
 async function fetchWithAuth<T>(endpoint: string): Promise<T> {
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
@@ -14,6 +15,22 @@ async function fetchWithAuth<T>(endpoint: string): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${endpoint}`, { headers });
   if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
   return res.json();
+}
+
+async function getCachedPosts<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  if (typeof window === "undefined") return fetcher();
+  const cacheRaw = localStorage.getItem(key);
+  if (cacheRaw) {
+    const { timestamp, data } = JSON.parse(cacheRaw);
+    if (Date.now() - timestamp < CACHE_TTL) {
+      console.log(`[Trends] Cache hit for ${key}`);
+      return data;
+    }
+  }
+  console.log(`[Trends] Cache miss for ${key}`);
+  const data = await fetcher();
+  localStorage.setItem(key, JSON.stringify({ timestamp: Date.now(), data }));
+  return data;
 }
 
 export const getNetworkStats = async (): Promise<NetworkStats> => {
@@ -25,53 +42,59 @@ export const getNetworkStats = async (): Promise<NetworkStats> => {
 };
 
 export const getPopularPostsLast7Days = async (): Promise<Post[]> => {
-  const posts = await fetchWithAuth<any[]>("/stats/top_liked");
-  return posts.map((p) => ({
-    id: p.id,
-    user: p.user,
-    description: p.description || p.content,
-    image: p.image || null,
-    compressedImage: p.compressedImage || null,
-    location_name: p.location_name || null,
-    location: p.location || null,
-    timecreated: p.timecreated || p.createdAt,
-    likes: p.likes?.length ?? p.like_count ?? 0,
-    comments: p.comments?.length ?? p.comment_count ?? 0,
-    isDeleted: p.isDeleted ?? false,
-    isForAd: p.isForAd ?? false,
-    forAd: p.forAd ?? false,
-    deleted: p.deleted ?? false,
-  }));
+  return getCachedPosts("trends_top7d", async () => {
+    const posts = await fetchWithAuth<any[]>("/stats/top_liked");
+    return posts.map((p) => ({
+      id: p.id,
+      user: p.user,
+      description: p.description || p.content,
+      image: p.image || null,
+      compressedImage: p.compressedImage || null,
+      location_name: p.location_name || null,
+      location: p.location || null,
+      timecreated: p.timecreated || p.createdAt,
+      likes: p.likes?.length ?? p.like_count ?? 0,
+      comments: p.comments?.length ?? p.comment_count ?? 0,
+      isDeleted: p.isDeleted ?? false,
+      isForAd: p.isForAd ?? false,
+      forAd: p.forAd ?? false,
+      deleted: p.deleted ?? false,
+    }));
+  });
 };
 
 export const getTop10PostsAllTime = async (): Promise<Post[]> => {
-  const posts = await fetchWithAuth<any[]>("/stats/top_liked_all_time");
-  return posts.map((p) => ({
-    id: p.id,
-    user: p.user,
-    description: p.description || p.content,
-    image: p.image || null,
-    compressedImage: p.compressedImage || null,
-    location_name: p.location_name || null,
-    location: p.location || null,
-    timecreated: p.timecreated || p.createdAt,
-    likes: p.likes?.length ?? p.like_count ?? 0,
-    comments: p.comments ?? 0,
-    isDeleted: p.isDeleted ?? false,
-    isForAd: p.isForAd ?? false,
-    forAd: p.forAd ?? false,
-    deleted: p.deleted ?? false,
-  }));
+  return getCachedPosts("trends_topall", async () => {
+    const posts = await fetchWithAuth<any[]>("/stats/top_liked_all_time");
+    return posts.map((p) => ({
+      id: p.id,
+      user: p.user,
+      description: p.description || p.content,
+      image: p.image || null,
+      compressedImage: p.compressedImage || null,
+      location_name: p.location_name || null,
+      location: p.location || null,
+      timecreated: p.timecreated || p.createdAt,
+      likes: p.likes?.length ?? p.like_count ?? 0,
+      comments: p.comments ?? 0,
+      isDeleted: p.isDeleted ?? false,
+      isForAd: p.isForAd ?? false,
+      forAd: p.forAd ?? false,
+      deleted: p.deleted ?? false,
+    }));
+  });
 };
 
 export const getTopLikersLast7Days = async (): Promise<User[]> => {
-  const users = await fetchWithAuth<any[]>("/stats/top_likers");
-  return users.map((u) => ({
-    id: u.user_id || u.id,
-    username: u.name || u.username,
-    likesGiven: u.like_count || u.likesGiven,
-    avatarUrl: u.avatarUrl,
-  }));
+  return getCachedPosts("trends_toplikers", async () => {
+    const users = await fetchWithAuth<any[]>("/stats/top_likers");
+    return users.map((u) => ({
+      id: u.user_id || u.id,
+      username: u.name || u.username,
+      likesGiven: u.like_count || u.likesGiven,
+      avatarUrl: u.avatarUrl,
+    }));
+  });
 };
 
 
