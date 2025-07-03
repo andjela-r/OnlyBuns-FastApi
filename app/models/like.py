@@ -8,7 +8,7 @@ class Like(Base):
 
     userid = Column(Integer, ForeignKey("registereduser.id"), primary_key=True)
     postid = Column(Integer, ForeignKey("post.id"), primary_key=True)
-    timecreated = default=func.now() - timedelta(days=10)
+    timecreated = Column(TIMESTAMP, default=func.now() - timedelta(days=10))
 
     #many to one
     user = relationship("User", back_populates="likes")
