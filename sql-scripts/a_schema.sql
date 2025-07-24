@@ -65,6 +65,7 @@ CREATE TABLE "following" (
 CREATE TABLE "like" (
                       postid INT,
                       userid INT,
+                      timecreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                       PRIMARY KEY (postid, userid),
                       FOREIGN KEY (postid) REFERENCES post(id) ON DELETE CASCADE,
                       FOREIGN KEY (userid) REFERENCES registereduser(id) ON DELETE CASCADE

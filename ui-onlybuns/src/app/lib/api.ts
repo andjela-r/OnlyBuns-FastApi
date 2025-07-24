@@ -76,3 +76,4 @@ export async function getPostLocation(post_location: string): Promise<Location |
     const data = await response.json();
     return data as Location;
 }
+
