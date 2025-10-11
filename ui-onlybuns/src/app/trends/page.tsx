@@ -5,6 +5,7 @@ import { User, NetworkStats } from "../types/Trends";
 import { Post } from "../types/Post";
 import Link from "next/link";
 import { formatDate } from "../../../utils/formatDate";
+import { useRouter } from "next/navigation";
 
 const API_BASE_URL = "http://localhost:8000";
 const CACHE_TTL = 60 * 1000;
@@ -203,8 +204,14 @@ function TrendsPage() {
     topLikers7d: [],
   });
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
+    const token = localStorage.getItem("access_token");
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
     const fetchAllData = async () => {
       try {
         const [

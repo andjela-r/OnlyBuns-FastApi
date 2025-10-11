@@ -5,6 +5,7 @@ import { Post } from '../types/Post';
 import { fetchPublicPosts, getMyProfile, getPostLocation } from '../lib/api'; 
 import { UserProfile } from '../types/UserProfile';
 import { Location } from '../types/Location';
+import { useRouter } from 'next/navigation';
 
 const addLocationsToPosts = async (posts: Post[]): Promise<Post[]> => {
     const postsWithLocations = await Promise.all(
@@ -35,8 +36,14 @@ const MapPage: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
         const loadData = async () => {
             try {
                 const [fetchedPosts, fetchedUser] = await Promise.all([
