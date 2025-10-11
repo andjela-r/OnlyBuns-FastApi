@@ -105,6 +105,22 @@ class UserService:
         if user.following:
             return [self.find_by_id(following.idfollowing, db) for following in user.following]
         return []
+
+    def get_user_follower_by_username(self, username: str, db: Session):
+        user = self.find_by_username(username, db)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        if user.followers:
+            return [self.find_by_id(following.idfollower, db) for following in user.followers]
+        return []
+
+    def get_user_following_by_username(self, username: str, db: Session):
+        user = self.find_by_username(username, db)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        if user.following:
+            return [self.find_by_id(following.idfollowing, db) for following in user.following]
+        return []
     
     def update_user(self, user_id: int, user_data: UserUpdate, db: Session):
         user = self.find_by_id(user_id, db)

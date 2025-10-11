@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {PostComment} from "../types/PostComment"
 import {fetchCommentsByPostId, fetchPublicPosts} from "@/app/lib/api";
+import { formatDate } from "../../../utils/formatDate";
 
 interface CommentsListProps {
     postId: string;
@@ -36,13 +37,13 @@ export default function CommentsList({ postId }: CommentsListProps){
                     <div key={comment.id} className="mb-3 bg-gray-50 my-1 rounded shadow-md p-3">
                         <div className="flex items-center">
                             <p>
-                                <Link href={`/users/${comment.user.name}${comment.user.surname}`}
+                                <Link href={`/users/${comment.user.username}`}
                                       className="font-bold hover:text-blue-800">
                                     {comment.user.name} {comment.user.surname}
                                 </Link>
                             </p>
                             <p className="text-sm text-gray-500">&nbsp;•&nbsp;</p>
-                            <p className="text-sm text-gray-500">{new Date(comment.timecreated).toLocaleString()}</p>
+                            <p className="text-sm text-gray-500">{formatDate(comment.timecreated)}</p>
                         </div>
                         <p>{comment.content}</p>
                     </div>

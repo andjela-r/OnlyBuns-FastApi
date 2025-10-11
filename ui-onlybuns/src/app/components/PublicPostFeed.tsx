@@ -5,6 +5,7 @@ import { fetchPublicPosts } from '../lib/api';
 import Link from "next/link";
 import Image from "next/image";
 import CommentsList from "@/app/components/commentList";
+import { formatDate } from "../../../utils/formatDate";
 
 const PublicPostFeed: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -71,13 +72,13 @@ const PublicPostFeed: React.FC = () => {
                         <div className="flex items-center mb-4">
                             <div>
                                 {post.user ? (
-                                    <Link href={`/users/${post.user.name}_${post.user.surname}`} className="font-bold text-gray-800 hover:text-pink-600 transition-colors">
+                                    <Link href={`/users/${post.user.username}`} className="font-bold text-gray-800 hover:text-pink-600 transition-colors">
                                         {post.user.name} {post.user.surname}
                                     </Link>
                                 ) : (
                                     <h3 className="text-gray-800 font-bold">Anonymous User</h3>
                                 )}
-                                <p className="text-gray-500 text-xs">{new Date(post.timecreated).toLocaleString()}</p>
+                                <p className="text-gray-500 text-xs">{formatDate(post.timecreated)}</p>
                             </div>
                         </div>
 

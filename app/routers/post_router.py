@@ -65,7 +65,7 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[PostResponse])
 def read_posts(skip: int = 0, limit: Optional[int] = None, db: Session = Depends(get_db)):
-    posts = db.query(Post).offset(skip)
+    posts = db.query(Post).order_by(Post.timecreated.desc()).offset(skip)
     if limit is not None:
         posts = posts.limit(limit)
     return posts.all()

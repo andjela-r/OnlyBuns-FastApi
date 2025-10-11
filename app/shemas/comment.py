@@ -20,6 +20,7 @@ class RegisteredUserSchema(BaseModel):
     id: int
     name: str
     surname: str
+    username: str
 
     class Config:
         from_attributes = True

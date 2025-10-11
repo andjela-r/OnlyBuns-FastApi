@@ -77,3 +77,27 @@ export async function getPostLocation(post_location: string): Promise<Location |
     return data as Location;
 }
 
+export async function getUserByUsername(username: string): Promise<UserProfile> {
+    const response = await fetch(`${API_BASE_URL}/users/username/${username}`);
+    if (!response.ok) throw new Error('Failed to fetch user profile.');
+    return response.json();
+}
+
+export async function getUserPosts(username: string): Promise<Post[]> {
+    const response = await fetch(`${API_BASE_URL}/users/${username}/posts`);
+    if (!response.ok) throw new Error('Failed to fetch user posts.');
+    return response.json();
+}
+
+export async function getUserFollowers(username: string): Promise<RegisteredUser[]> {
+    const response = await fetch(`${API_BASE_URL}/users/${username}/followers`);
+    if (!response.ok) throw new Error('Failed to fetch user followers.');
+    return response.json();
+}
+
+export async function getUserFollowing(username: string): Promise<RegisteredUser[]> {
+    const response = await fetch(`${API_BASE_URL}/users/${username}/following`);
+    if (!response.ok) throw new Error('Failed to fetch user following.');
+    return response.json();
+}
+
