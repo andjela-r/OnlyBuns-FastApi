@@ -6,7 +6,6 @@ from app.services.role_service import RoleService
 from app.services.location_service import LocationService
 from pybloom_live import BloomFilter
 from passlib.context import CryptContext
-import time
 from fastapi import HTTPException
 
 username_bloom = BloomFilter(capacity=10000, error_rate=0.001)
@@ -34,13 +33,14 @@ class UserService:
     def find_all(self, db: Session):
         return db.query(User).all()
 
-    def register_user(self, user_data: UserCreate, db: Session):
-        time.sleep(2)  # For simulating a delay 
-
-        if user_data.username in username_bloom:
-            raise HTTPException(status_code=400, detail="Username is **probably** already taken")
+    def register_user(self, user_data: UserCreate, db: Session):        
         try:
-        #with db.begin():  # Start a transaction
+
+            if user_data.username in username_bloom:
+            # check if the username is actually taken
+                if self.find_by_username(user_data.username, db):
+                    raise HTTPException(status_code=400, detail="Username is already taken")
+
             hashed_password = pwd_context.hash(user_data.password)
             user = User(
                 name=user_data.name,
@@ -64,11 +64,11 @@ class UserService:
         except IntegrityError as e:
             db.rollback()
             if "username" in str(e.orig):
-                raise HTTPException(status_code=400, detail="Username is already taken")
+                raise HTTPException(status_code=400, detail="Username is already taken!")
             elif "email" in str(e.orig):
-                raise HTTPException(status_code=400, detail="Email is already registered")
+                raise HTTPException(status_code=400, detail="Email is already registered!")
             else:
-                raise HTTPException(status_code=400, detail="Registration failed due to a database error")
+                raise HTTPException(status_code=400, detail="Registration failed due to a database error!")
             
     def activate_user(self, email: str, db: Session):
         user = db.query(User).filter(User.email == email).first()

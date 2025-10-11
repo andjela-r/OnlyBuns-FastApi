@@ -27,14 +27,14 @@ def is_rate_limited(ip: str):
     now = time.time()
     attempts = login_attempts.get(ip, [])
     
-    attempts = [t for t in attempts if now - t < WINDOW_SECONDS]
-    login_attempts[ip] = attempts
+    attempts = [t for t in attempts if now - t < WINDOW_SECONDS] #keep only the attempts that are within the window (the last 60 seconds) -> slides dinamically
+    login_attempts[ip] = attempts #update the attempts for the ip
     if len(attempts) >= MAX_ATTEMPTS:
-        return True
+        return True # don't let the user login
 
-    attempts.append(now)
-    login_attempts[ip] = attempts
-    return False
+    attempts.append(now) #add the new attempt
+    login_attempts[ip] = attempts #update the attempts for the ip
+    return False #let the user login
 
 @router.post("/token")
 async def login(
