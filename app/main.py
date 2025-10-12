@@ -9,14 +9,25 @@ from app.routers.post_router import router as post_router
 from app.routers.email_router import router as email_router
 from app.routers.location_router import router as location_router
 from app.routers.stats_router import router as stats_router
+from app.routers.bunny_care_router import router as bunny_care_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.services.user_service import populate_username_bloom
 from app.db.session import SessionLocal
 
+from contextlib import asynccontextmanager
+from app.workers.receive_bunny_locations import start_consumer_in_background
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # on startup
+    start_consumer_in_background()
+    yield
+    # on shutdown: (BlockingConnection stops when process exits; no action needed for this simple demo)
+
 
 # Initialize FastAPI app
 
-app = FastAPI(title="OnlyBuns API", description="API for OnlyBuns, the rabbit social network")
+app = FastAPI(title="OnlyBuns API", description="API for OnlyBuns, the rabbit social network", lifespan=lifespan)
 db = SessionLocal()
 populate_username_bloom(db)  # This fills the global username_bloom in user_service.py
 db.close()
@@ -40,6 +51,7 @@ app.include_router(post_router, prefix="/posts", tags= ["Post"])
 app.include_router(email_router, prefix="/email", tags=["Email"])
 app.include_router(location_router, prefix="/locations", tags=["Location"])
 app.include_router(stats_router, prefix="/stats", tags=["Stats"])
+app.include_router(bunny_care_router, prefix="/bunny-care", tags=["Bunny Care"])
 
 
 # Root endpoint

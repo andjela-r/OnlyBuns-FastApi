@@ -3,6 +3,7 @@ import { PostComment } from '../types/PostComment';
 import { UserProfile } from '../types/UserProfile';
 import { RegisteredUser } from '../types/Post';
 import { Location } from '../types/Location';
+import { BunnyCare } from '../types/BunnyCare';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -98,6 +99,27 @@ export async function getUserFollowers(username: string): Promise<RegisteredUser
 export async function getUserFollowing(username: string): Promise<RegisteredUser[]> {
     const response = await fetch(`${API_BASE_URL}/users/${username}/following`);
     if (!response.ok) throw new Error('Failed to fetch user following.');
+    return response.json();
+}
+
+// Bunny Care API functions
+export async function fetchBunnyCareLocations(): Promise<BunnyCare[]> {
+    const response = await fetch(`${API_BASE_URL}/bunny-care/`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch bunny care locations');
+    }
+    return response.json();
+}
+
+export async function createBunnyCareLocation(bunnyCare: Omit<BunnyCare, 'id'>): Promise<BunnyCare> {
+    const response = await fetch(`${API_BASE_URL}/bunny-care/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(bunnyCare)
+    });
+    if (!response.ok) {
+        throw new Error('Failed to create bunny care location');
+    }
     return response.json();
 }
 

@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS "following";
 DROP TABLE IF EXISTS "like";
 DROP TABLE IF EXISTS "comment";
 DROP TABLE IF EXISTS "location";
+DROP TABLE IF EXISTS "bunny_care";
 
 -- Location Table
 CREATE TABLE "location" (
@@ -94,6 +95,15 @@ CREATE TABLE USER_ROLE (
 					FOREIGN KEY (user_id) REFERENCES registereduser(id) ON DELETE CASCADE,
 					FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE
 );
+
+-- Bunny Care Table
+CREATE TABLE "bunny_care" (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    latitude FLOAT NOT NULL,
+    longitude FLOAT NOT NULL
+);
+
 --
 -- -- Chat Table
 -- CREATE TABLE Chat (
@@ -110,7 +120,6 @@ CREATE TABLE USER_ROLE (
 --                                  FOREIGN KEY (chatID) REFERENCES Chat(chatID) ON DELETE CASCADE,
 --                                  FOREIGN KEY (userID) REFERENCES RegisteredUser(userID) ON DELETE CASCADE
 -- );
---
 -- -- Message Table
 -- CREATE TABLE Message (
 --                          messageID SERIAL PRIMARY KEY,

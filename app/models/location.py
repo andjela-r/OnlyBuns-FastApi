@@ -9,7 +9,7 @@ class Location(Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
 
-    _table_args__ = (
+    __table_args__ = (
         UniqueConstraint('latitude', 'longitude', name='unique_lat_long'),
     )
 
