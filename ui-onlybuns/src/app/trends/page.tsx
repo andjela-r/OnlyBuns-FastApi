@@ -259,11 +259,11 @@ function TrendsPage() {
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <StatCard
             title="Total number of posts"
-            value={formatDate(data.stats?.totalPosts) || "N/A"}
+            value={data.stats?.totalPosts || "N/A"}
           />
           <StatCard
             title="Posts in the last 30 days"
-            value={formatDate(data.stats?.postsLast30Days) || "N/A"}
+            value={data.stats?.postsLast30Days || "N/A"}
           />
         </section>
 
