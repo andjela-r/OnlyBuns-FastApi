@@ -34,7 +34,7 @@ def _handle_message(raw: bytes) -> None:
                 timeout=30.0
             )
             
-            if response.status_code == 201:
+            if response.status_code in [200, 201]:
                 logger.info(f"Successfully created bunny care: {data.get('name')}")
             elif response.status_code == 400:
                 # Bunny care already exists (based on coordinates or name)
