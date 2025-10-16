@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { User, NetworkStats } from "../types/Trends";
 import { Post } from "../types/Post";
 import Link from "next/link";
+import { formatDate } from "../../../utils/formatDate";
+import { useRouter } from "next/navigation";
 
 const API_BASE_URL = "http://localhost:8000";
 const CACHE_TTL = 60 * 1000;
@@ -117,7 +119,7 @@ function PublicPostFeedCard({ post }: { post: Post }) {
               {post.user?.name} {post.user?.surname}
             </span>
           </Link>
-          <p className="text-gray-500 text-xs">{new Date(post.timecreated).toLocaleString()}</p>
+          <p className="text-gray-500 text-xs">{formatDate(post.timecreated)}</p>
         </div>
       </div>
       <p className="text-gray-700 text-base mb-4">{post.description}</p>
@@ -202,8 +204,14 @@ function TrendsPage() {
     topLikers7d: [],
   });
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
+    const token = localStorage.getItem("access_token");
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
     const fetchAllData = async () => {
       try {
         const [
@@ -251,11 +259,11 @@ function TrendsPage() {
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <StatCard
             title="Total number of posts"
-            value={data.stats?.totalPosts?.toLocaleString("en-US") || "N/A"}
+            value={data.stats?.totalPosts || "N/A"}
           />
           <StatCard
             title="Posts in the last 30 days"
-            value={data.stats?.postsLast30Days?.toLocaleString("en-US") || "N/A"}
+            value={data.stats?.postsLast30Days || "N/A"}
           />
         </section>
 

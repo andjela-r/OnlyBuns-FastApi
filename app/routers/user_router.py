@@ -8,6 +8,7 @@ import time
 from app.db.session import get_db
 from app.routers.email_router import send_mail, EmailSchema, EmailUser
 from app.shemas.user import UserCreate, UserResponse, UserResponseWithLocation, UserUpdate
+from app.shemas.post import PostResponse
 from app.services.user_service import UserService
 from app.services.location_service import LocationService
 from app.security import create_access_token, get_current_user
@@ -26,14 +27,14 @@ def is_rate_limited(ip: str):
     now = time.time()
     attempts = login_attempts.get(ip, [])
     
-    attempts = [t for t in attempts if now - t < WINDOW_SECONDS]
-    login_attempts[ip] = attempts
+    attempts = [t for t in attempts if now - t < WINDOW_SECONDS] #keep only the attempts that are within the window (the last 60 seconds) -> slides dinamically
+    login_attempts[ip] = attempts #update the attempts for the ip
     if len(attempts) >= MAX_ATTEMPTS:
-        return True
+        return True # don't let the user login
 
-    attempts.append(now)
-    login_attempts[ip] = attempts
-    return False
+    attempts.append(now) #add the new attempt
+    login_attempts[ip] = attempts #update the attempts for the ip
+    return False #let the user login
 
 @router.post("/token")
 async def login(
@@ -104,7 +105,7 @@ def update_user(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/me/posts")
+@router.get("/me/posts", response_model=list[PostResponse])
 def get_my_posts(current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
     return user_service.get_user_posts(current_user.id, db)
 
@@ -181,4 +182,22 @@ def activate_user(email: str, db: Session = Depends(get_db)):
         db.commit()
     # Redirect to frontend homepage
     return RedirectResponse(url="http://localhost:3000/")
+
+@router.get("/{username}/posts", response_model=list[PostResponse])
+def get_posts_by_username(username: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == username).first()
+    posts = user.posts if user.posts else []
+    return posts
+
+@router.get("/{username}/followers")
+def get_user_followers(username: str, db: Session = Depends(get_db)):
+    if not db.query(User).filter(User.username == username).first():
+        raise HTTPException(status_code=404, detail="User not found")
+    return user_service.get_user_follower_by_username(username, db)
+
+@router.get("/{username}/following")
+def get_user_following(username: str, db: Session = Depends(get_db)):
+    if not db.query(User).filter(User.username == username).first():
+        raise HTTPException(status_code=404, detail="User not found")
+    return user_service.get_user_following_by_username(username, db)
 

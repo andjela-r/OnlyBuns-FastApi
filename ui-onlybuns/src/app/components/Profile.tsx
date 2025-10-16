@@ -3,15 +3,43 @@ import { Post, RegisteredUser } from '../types/Post';
 import { UserProfile } from '../types/UserProfile';
 import { XIcon, PlusIcon } from "../components/Icons";
 import { useRouter } from 'next/navigation'
+import { formatDate } from "../../../utils/formatDate";
 
+const localSrc = (p?: string | null) => {
+    if (!p) return null;
+    if (/^https?:|^data:|^blob:/.test(p)) return p;   
+    const clean = p.replace(/^(\.\/)+/, '').replace(/^\/+/, ''); 
+    return `/${clean}`;
+  };
 
+export const PostCard = ({ post }: { post: Post }) => {
+    const imageSrc = localSrc(post.image);
 
-export const PostCard = ({ post }: { post: Post }) => (
-    <div className="bg-white p-4 rounded shadow-md mb-4 w-full"><p className="text-gray-800 text-xl mb-2">{post.description}</p>{post.image && <img src={post.image} alt="Post image" className="w-full h-auto mt-2 rounded"/>}<p className="text-gray-500 text-sm mt-2">{new Date(post.timecreated).toLocaleString()}</p><hr className="border-t border-gray-300 my-2"/><div className="flex justify-between items-center text-gray-600 text-sm"><span>{post.likes} Likes</span><span>{post.comments} Comments</span></div></div>
-);
+    return (
+        <div className="bg-white p-4 rounded shadow-md mb-4 w-full">
+        <p className="text-gray-800 text-xl mb-2">{post.description}</p>
+
+        {imageSrc && (
+            <img
+            src={imageSrc}
+            alt="Post image"
+            className="w-full max-h-[500px] rounded-lg object-contain bg-gray-100 mb-4"
+            onError={(e) => (e.currentTarget.style.display = 'none')}
+            />
+        )}
+
+        <p className="text-gray-500 text-sm mt-2">{formatDate(post.timecreated)}</p>
+        <hr className="border-t border-gray-300 my-2" />
+        <div className="flex justify-between items-center text-gray-600 text-sm">
+            <span>{post.likes} Likes</span>
+            <span>{post.comments} Comments</span>
+        </div>
+        </div>
+    );
+};
 
 export const UserCard = ({ user }: { user: RegisteredUser }) => (
-    <div className="flex items-center p-3 bg-white rounded-lg shadow-sm"><div className="w-12 h-12 rounded-full bg-pink-400 flex items-center justify-center text-white font-bold text-xl mr-4">{user.name.charAt(0)}{user.surname.charAt(0)}</div><a href={`/users/${user.id}`} className="font-semibold text-gray-800 hover:text-green-800">{user.name} {user.surname}</a></div>
+    <div className="flex items-center p-3 bg-white rounded-lg shadow-sm"><div className="w-12 h-12 rounded-full bg-pink-400 flex items-center justify-center text-white font-bold text-xl mr-4">{user.name.charAt(0)}{user.surname.charAt(0)}</div><a href={`/users/${user.username}`} className="font-semibold text-gray-800 hover:text-green-800">{user.name} {user.surname}</a></div>
 );
 
 export const EditProfileModal = ({ isOpen, onClose, currentUser, onSave }: { isOpen: boolean, onClose: () => void, currentUser: UserProfile, onSave: (data: any) => Promise<void> }) => {

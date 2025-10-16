@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Post } from '../types/Post';
 import { UserProfile } from '../types/UserProfile';
+import { BunnyCare } from '../types/BunnyCare';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -22,8 +23,18 @@ const userIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
+const bunnyCareIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
 interface MapProps {
   posts: Post[];
+  bunnyCareLocations: BunnyCare[];
   currentUser: UserProfile;
 }
 
@@ -47,7 +58,7 @@ function groupPostsByLocation(posts: Post[]) {
     return groups;
 }
 
-const MapComponent: React.FC<MapProps> = ({ posts, currentUser }) => {
+const MapComponent: React.FC<MapProps> = ({ posts, bunnyCareLocations, currentUser }) => {
   const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(true);
   const groupedPosts = groupPostsByLocation(posts);
@@ -95,6 +106,28 @@ const MapComponent: React.FC<MapProps> = ({ posts, currentUser }) => {
           </div>
         </Popup>
       </Marker>
+
+      {/* Bunny Care Location markers */}
+      {bunnyCareLocations.map((bunnyCare) => (
+        <Marker key={`bunny-care-${bunnyCare.id || bunnyCare.name}`} position={[bunnyCare.latitude, bunnyCare.longitude]} icon={bunnyCareIcon}>
+          <Popup>
+            <div style={{ minWidth: '200px' }}>
+              <div style={{ fontWeight: 'bold', marginBottom: '10px', color: '#2d3748' }}>
+                🐰 {bunnyCare.name}
+                <div style={{ fontWeight: 'normal', fontSize: '0.95em', color: '#4a5568', marginTop: '2px' }}>
+                  ({bunnyCare.latitude.toFixed(5)}, {bunnyCare.longitude.toFixed(5)})
+                </div>
+              </div>
+              <div style={{ marginBottom: '12px', padding: '8px', background: '#fef2f2', borderRadius: '6px', border: '1px solid #fecaca' }}>
+                <span style={{ fontWeight: 'bold', color: '#dc2626' }}>Bunny Care Location</span>
+                <div style={{ fontSize: '0.9em', color: '#7f1d1d', marginTop: '4px' }}>
+                  Professional bunny care services available here
+                </div>
+              </div>
+            </div>
+          </Popup>
+        </Marker>
+      ))}
 
       {/* Grouped post markers */}
       {Object.entries(groupedPosts).map(([key, postsAtLocation]) => {

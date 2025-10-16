@@ -4,6 +4,7 @@ export interface RegisteredUser {
     id: string;
     name: string;
     surname: string;
+    username: string;
 }
 
 export interface Post {

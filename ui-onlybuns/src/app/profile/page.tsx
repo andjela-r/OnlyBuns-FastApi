@@ -3,12 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import { Post, RegisteredUser } from '../types/Post'; 
 import { UserProfile } from '../types/UserProfile';
-import { getMyProfile, getMyPosts, updateProfile, getMyFollowers, getMyFollowing } from '../lib/api';
+import { getMyProfile, getMyPosts, updateProfile, getMyFollowers, getMyFollowing, getUserByUsername, getUserPosts, getUserFollowers, getUserFollowing } from '../lib/api';
 import { SettingsIcon } from "../components/Icons";
 import { PostCard, UserCard, EditProfileModal, TabButton } from '../components/Profile';
 
 
-export default function ProfilePage() {
+interface ProfilePageProps {
+    username?: string;
+}
+
+export default function ProfilePage({ username }: ProfilePageProps = {}) {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [followers, setFollowers] = useState<RegisteredUser[]>([]);
@@ -17,6 +21,7 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCurrentUser, setIsCurrentUser] = useState(false);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -25,31 +30,59 @@ export default function ProfilePage() {
             const loadInitialData = async () => {
                 try {
                     setLoading(true);
-                    const profileData = await getMyProfile();
-                    setProfile(profileData);
-                    const postsData = await getMyPosts();
-                    setPosts(postsData);
-                    // Fetch followers and following counts immediately
-                    setFollowers(await getMyFollowers());
-                    setFollowing(await getMyFollowing());
-                } catch (err) { setError(err instanceof Error ? err.message : 'Failed to load data');
-                } finally { setLoading(false); }
+                    
+                    if (username) {
+                        // Loading another user's profile
+                        setIsCurrentUser(false);
+                        const profileData = await getUserByUsername(username);
+                        setProfile(profileData);
+                        const postsData = await getUserPosts(username);
+                        setPosts(postsData);
+                        setFollowers(await getUserFollowers(username));
+                        setFollowing(await getUserFollowing(username));
+                    } else {
+                        // Loading current user's profile
+                        setIsCurrentUser(true);
+                        const profileData = await getMyProfile();
+                        setProfile(profileData);
+                        const postsData = await getMyPosts();
+                        setPosts(postsData);
+                        setFollowers(await getMyFollowers());
+                        setFollowing(await getMyFollowing());
+                    }
+                } catch (err) { 
+                    setError(err instanceof Error ? err.message : 'Failed to load data');
+                } finally { 
+                    setLoading(false); 
+                }
             };
             loadInitialData();
         }
-    }, []);
+    }, [username]);
 
     useEffect(() => {
         if (profile) {
             const loadTabData = async () => {
                 try {
-                    if (activeTab === 'followers' && followers.length === 0) { setFollowers(await getMyFollowers()); } 
-                    else if (activeTab === 'following' && following.length === 0) { setFollowing(await getMyFollowing()); }
+                    if (activeTab === 'followers' && followers.length === 0) { 
+                        if (isCurrentUser) {
+                            setFollowers(await getMyFollowers()); 
+                        } else if (username) {
+                            setFollowers(await getUserFollowers(username));
+                        }
+                    } 
+                    else if (activeTab === 'following' && following.length === 0) { 
+                        if (isCurrentUser) {
+                            setFollowing(await getMyFollowing()); 
+                        } else if (username) {
+                            setFollowing(await getUserFollowing(username));
+                        }
+                    }
                 } catch (err) { console.error("Failed to load tab data:", err); }
             };
             loadTabData();
         }
-    }, [activeTab, profile, followers.length, following.length]);
+    }, [activeTab, profile, followers.length, following.length, isCurrentUser, username]);
 
    const handleSaveProfile = async (data: any) => {
     try {
@@ -84,7 +117,11 @@ export default function ProfilePage() {
                                 <p className="text-gray-500 mt-1">{profile.email}</p>
                                 <p className="text-gray-500">{profile.address || 'Address not provided'}</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(true)} className="text-gray-500 hover:text-green-700 p-2 rounded-full hover:bg-gray-100"><SettingsIcon className="w-6 h-6"/></button>
+                            {isCurrentUser && (
+                                <button onClick={() => setIsModalOpen(true)} className="text-gray-500 hover:text-green-700 p-2 rounded-full hover:bg-gray-100">
+                                    <SettingsIcon className="w-6 h-6"/>
+                                </button>
+                            )}
                         </div>
                         <hr className="my-4"/>
                         <div className="flex justify-around text-center">
@@ -99,7 +136,7 @@ export default function ProfilePage() {
                     </div>
                 </div>
             </main>
-            {isModalOpen && <EditProfileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} currentUser={profile} onSave={handleSaveProfile} />}
+            {isModalOpen && isCurrentUser && <EditProfileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} currentUser={profile} onSave={handleSaveProfile} />}
         </>
     );
 }

@@ -2,9 +2,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Post } from '../types/Post';
-import { fetchPublicPosts, getMyProfile, getPostLocation } from '../lib/api'; 
+import { fetchPublicPosts, getMyProfile, getPostLocation, fetchBunnyCareLocations } from '../lib/api'; 
 import { UserProfile } from '../types/UserProfile';
 import { Location } from '../types/Location';
+import { BunnyCare } from '../types/BunnyCare';
+import { useRouter } from 'next/navigation';
 
 const addLocationsToPosts = async (posts: Post[]): Promise<Post[]> => {
     const postsWithLocations = await Promise.all(
@@ -33,23 +35,33 @@ const addLocationsToPosts = async (posts: Post[]): Promise<Post[]> => {
 
 const MapPage: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
+    const [bunnyCareLocations, setBunnyCareLocations] = useState<BunnyCare[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
         const loadData = async () => {
             try {
-                const [fetchedPosts, fetchedUser] = await Promise.all([
+                const [fetchedPosts, fetchedUser, fetchedBunnyCare] = await Promise.all([
                     fetchPublicPosts(),
-                    getMyProfile()
+                    getMyProfile(),
+                    fetchBunnyCareLocations()
                 ]);
                 // Fetch locations for each post
                 const postsWithLocations = await addLocationsToPosts(fetchedPosts);
                 console.log("Posts with locations:", postsWithLocations);
+                console.log("Bunny care locations:", fetchedBunnyCare);
                 setPosts(postsWithLocations);
+                setBunnyCareLocations(fetchedBunnyCare);
                 setCurrentUser(fetchedUser);
             } catch (error) {
-                console.error("Failed to fetch posts or user:", error);
+                console.error("Failed to fetch posts, user, or bunny care locations:", error);
             } finally {
                 setLoading(false);
             }
@@ -69,7 +81,7 @@ const MapPage: React.FC = () => {
 
     return (
         <div className="w-full h-screen">
-            <MapComponent posts={posts} currentUser={currentUser} />
+            <MapComponent posts={posts} bunnyCareLocations={bunnyCareLocations} currentUser={currentUser} />
         </div>
     );
 };
