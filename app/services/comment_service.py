@@ -8,7 +8,7 @@ class CommentService:
         pass
 
 
-    def get_post_comments(self, db: Session, post_id: int):
+    def get_post_comments(self, db: Session, postid: int):
         """
         Retrieve all comments for a given post, including user and post info.
         """
@@ -18,7 +18,7 @@ class CommentService:
                 joinedload(Comment.user),   
                 joinedload(Comment.post)
             )
-            .filter(Comment.postid == post_id)
+            .filter(Comment.postid == postid)
             .all()
         )
         return comments

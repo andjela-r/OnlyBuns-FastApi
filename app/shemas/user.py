@@ -51,6 +51,20 @@ class UserResponseWithLocation(UserBase):
     class Config:
         from_attributes = True
 
+class UserAdminResponse(BaseModel):
+    id: int
+    username: str
+    name: Optional[str]
+    surname: Optional[str]
+    email: EmailStr
+    address: Optional[str]
+    posts_count: int
+    following: int
+    followers: int
+
+    class Config:
+        from_attributes = True
+
 
 
 

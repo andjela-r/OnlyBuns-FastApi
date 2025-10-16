@@ -1,13 +1,17 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from app.models.user import User
+from app.models.following import Following
 from app.shemas.user import UserCreate, UserUpdate
 from app.services.role_service import RoleService
 from app.services.location_service import LocationService
 from pybloom_live import BloomFilter
 from passlib.context import CryptContext
-import time
+import time 
 from fastapi import HTTPException
+from sqlalchemy.orm import Session #glavna veza između tvoje aplikacije i baze podataka.
+from app.models.post import Post
+from sqlalchemy import func
 
 username_bloom = BloomFilter(capacity=10000, error_rate=0.001)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -106,6 +110,33 @@ class UserService:
             return [self.find_by_id(following.idfollowing, db) for following in user.following]
         return []
     
+    def follow_user(self, db: Session, idfollower: int, idfollowing: int):
+        user = self.find_by_id(idfollowing, db)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        exists = db.query(Following).filter_by(idfollower=idfollower, idfollowing=idfollowing).first()
+        if exists:
+            return exists
+        follow = Following(idfollower=idfollower, idfollowing=idfollowing)
+        db.add(follow)
+        db.commit()
+        db.refresh(follow)
+        return follow
+
+    def unfollow_user(self, db: Session, idfollower: int, idfollowing: int):
+        follow = db.query(Following).filter_by(idfollower=idfollower, idfollowing=idfollowing).first()
+        if not follow:
+            raise HTTPException(status_code=404, detail="Not following this user")
+        db.delete(follow)
+        db.commit()
+        return {"message": "Unfollowed"}
+    
+    def get_followers_count(self, db: Session, user_id: int):
+        return db.query(Following).filter_by(idfollowing=user_id).count()
+
+    def get_following_count(self, db: Session, user_id: int):
+        return db.query(Following).filter_by(idfollower=user_id).count()
+
     def update_user(self, user_id: int, user_data: UserUpdate, db: Session):
         user = self.find_by_id(user_id, db)
         if not user:
@@ -130,5 +161,50 @@ class UserService:
         db.commit()
         db.refresh(user)
         return user
-    
+    def find_all_with_counts(self, db: Session):
+        post_count_subq = (
+            db.query(Post.registereduserid, func.count(Post.id).label("posts_count"))
+            .group_by(Post.registereduserid)
+            .subquery()
+        )
+
+        following_subq = (
+            db.query(Following.idfollower, func.count(Following.idfollowing).label("following"))
+            .group_by(Following.idfollower)
+            .subquery()
+        )
+
+        followers_subq = (
+            db.query(Following.idfollowing, func.count(Following.idfollower).label("followers"))
+            .group_by(Following.idfollowing)
+            .subquery()
+        )
+
+        query = (
+            db.query(
+                User.id,
+                User.username,
+                User.name,
+                User.surname,
+                User.email,
+                User.address,
+                func.coalesce(post_count_subq.c.posts_count, 0).label("posts_count"),
+                func.coalesce(following_subq.c.following, 0).label("following"),
+                func.coalesce(followers_subq.c.followers, 0).label("followers"),
+            )
+            .outerjoin(post_count_subq, post_count_subq.c.registereduserid == User.id)
+            .outerjoin(following_subq, following_subq.c.idfollower == User.id)
+            .outerjoin(followers_subq, followers_subq.c.idfollowing == User.id)
+        )
+
+        result = [dict(r._mapping) for r in query.all()]
+        return result
+
+
+def delete_inactive_users(db: Session):
+    db.query(User).filter(User.isactivated == False).delete()
+    db.commit()
+
+
+
     

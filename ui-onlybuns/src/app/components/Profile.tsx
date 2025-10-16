@@ -4,10 +4,8 @@ import { UserProfile } from '../types/UserProfile';
 import { XIcon, PlusIcon } from "../components/Icons";
 import { useRouter } from 'next/navigation'
 
-
-
 export const PostCard = ({ post }: { post: Post }) => (
-    <div className="bg-white p-4 rounded shadow-md mb-4 w-full"><p className="text-gray-800 text-xl mb-2">{post.description}</p>{post.image && <img src={post.image} alt="Post image" className="w-full h-auto mt-2 rounded"/>}<p className="text-gray-500 text-sm mt-2">{new Date(post.timecreated).toLocaleString()}</p><hr className="border-t border-gray-300 my-2"/><div className="flex justify-between items-center text-gray-600 text-sm"><span>{post.likes} Likes</span><span>{post.comments} Comments</span></div></div>
+    <div className="bg-white p-4 rounded shadow-md mb-4 w-full"><p className="text-gray-800 text-xl mb-2">{post.description}</p>{post.image && <img src={post.image} alt="Post image" className="w-full h-auto mt-2 rounded"/>}<p className="text-gray-500 text-sm mt-2">{new Date(post.timecreated).toLocaleString()}</p><hr className="border-t border-gray-300 my-2"/><div className="flex justify-between items-center text-gray-600 text-sm"><span>{post.likes_count} Likes</span><span>{post.comments_count} Comments</span></div></div>
 );
 
 export const UserCard = ({ user }: { user: RegisteredUser }) => (

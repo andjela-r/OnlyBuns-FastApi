@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import Path, APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -7,8 +7,8 @@ from typing import Annotated
 import time
 from app.db.session import get_db
 from app.routers.email_router import send_mail, EmailSchema, EmailUser
-from app.shemas.user import UserCreate, UserResponse, UserResponseWithLocation, UserUpdate
-from app.services.user_service import UserService
+from app.shemas.user import UserCreate, UserResponse, UserResponseWithLocation, UserUpdate, UserAdminResponse
+from app.services.user_service import UserService, delete_inactive_users
 from app.services.location_service import LocationService
 from app.security import create_access_token, get_current_user
 from app.models.user import User
@@ -58,8 +58,15 @@ async def login(
     if not user.isactivated:
         raise HTTPException(status_code=403, detail="Account not activated. Please check your email.")
 
-    access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer", "user_name": user.name}
+    from datetime import datetime, timezone
+
+    user.lastlogin = datetime.now(timezone.utc)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    access_token = create_access_token(data={"sub": str(user.id)})
+    return {"access_token": access_token, "token_type": "bearer", "user_name": user.name, "is_admin": user.isadmin}
 
 
 @router.get("/me", response_model=UserResponseWithLocation)
@@ -116,7 +123,6 @@ def get_my_followers(current_user: Annotated[User, Depends(get_current_user)], d
 def get_my_following(current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)):
     return user_service.get_user_following(current_user.id, db)
 
-
 @router.post("/", response_model=UserResponse)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     """
@@ -141,7 +147,13 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
+    
+@router.get("/adminuserview", response_model=list[UserAdminResponse])
+def get_all_users_count(db: Session = Depends(get_db)):
+    try:
+        return user_service.find_all_with_counts(db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user_by_id(
@@ -155,8 +167,8 @@ def get_user_by_id(
     return user
 
 
-@router.get("/username/{username}", response_model=UserResponse)
-def get_user_by_username(username: str, db: Session = Depends(get_db)):
+@router.get("/by-username/{username}", response_model=UserResponse)
+async def get_user_by_username(username: str = Path(..., regex=r"^[A-Za-z0-9_]+$"), db: Session = Depends(get_db)):
     user = user_service.find_by_username(username, db)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -170,7 +182,6 @@ def get_all_users(db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-
 @router.get("/activate/{email}")
 def activate_user(email: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
@@ -179,6 +190,26 @@ def activate_user(email: str, db: Session = Depends(get_db)):
     if not user.isactivated:
         user.isactivated = True
         db.commit()
-    # Redirect to frontend homepage
     return RedirectResponse(url="http://localhost:3000/")
+
+@router.delete("/users/inactive")
+def delete_inactive(db: Session = Depends(get_db)):
+    delete_inactive_users(db)
+    return {"message": "Inactive users deleted"}
+
+@router.post("/{user_id}/follow")
+def follow(user_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    return user_service.follow_user(db, current_user.id, user_id)
+
+@router.delete("/{user_id}/unfollow")
+def unfollow(user_id: int, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    return user_service.unfollow_user(db, current_user.id, user_id)
+
+@router.get("/{user_id}/followers/count")
+def followers_count(user_id: int, db: Session = Depends(get_db)):
+    return {"followers": user_service.get_followers_count(db, user_id)}
+
+@router.get("/{user_id}/following/count")
+def following_count(user_id: int, db: Session = Depends(get_db)):
+    return {"following": user_service.get_following_count(db, user_id)}
 

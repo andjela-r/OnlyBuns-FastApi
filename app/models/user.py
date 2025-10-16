@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, Boolean, Table, ForeignKey, TIME
 from app.db.base import Base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-
 from app.models.following import Following
 from app.models.location import Location
 
@@ -41,3 +40,6 @@ class User(Base):
     followers = relationship("Following", foreign_keys=[Following.idfollowing], back_populates="followed")
 
     address_location = relationship("Location", foreign_keys=[address], backref="users")
+
+    chat_members = relationship("ChatMember", back_populates="user", cascade="all, delete-orphan")
+    chats = relationship("Chat", secondary="chat_member", back_populates="members", overlaps="chat_members")

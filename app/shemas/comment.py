@@ -7,7 +7,7 @@ class CommentBase(BaseModel):
     postid: int
 
 class CommentCreate(CommentBase):
-    pass  
+    content: str
 
 class CommentRead(CommentBase):
     id: int

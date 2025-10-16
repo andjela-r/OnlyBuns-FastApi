@@ -11,20 +11,20 @@ import psycopg2
 
 
 router = APIRouter()
-
-@router.post("/{post_id}/like", response_model=LikeRead)
-def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+'''''
+@router.post("/{postid}/like", response_model=LikeRead)
+def like_post(postid: int, like: LikeCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     # Proveri da li post i korisnik postoje
-    if not db.query(Post).filter(Post.id == post_id).first():
+    if not db.query(Post).filter(Post.id == postid).first():
         raise HTTPException(status_code=404, detail="Post not found")
     if not db.query(User).filter(User.id == user.id).first():
         raise HTTPException(status_code=404, detail="User not found")
 
     # Kreiranje lajka
     try:
-        db_like = Like(postid=post_id, userid=user.id)
+        db_like = Like(postid=postid, userid=user.id)
         db.add(db_like)
         db.commit()
         db.refresh(db_like)
@@ -43,7 +43,7 @@ def like_post(post_id: int, like: LikeCreate, db: Session = Depends(get_db), use
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred: {str(e)}"
         )
-
+'''
 @router.delete("/{postid}/{userid}")
 def delete_like(postid: int, userid: int, db: Session = Depends(get_db)):
     like = db.query(Like).filter(Like.postid == postid, Like.userid == userid).first()

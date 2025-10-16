@@ -28,6 +28,7 @@ export default function Login() {
         if (response.ok && data.access_token) {
             localStorage.setItem('access_token', data.access_token);
             localStorage.setItem("user_name", data.user_name);
+            localStorage.setItem("is_group_admin", data.is_group_admin);
             window.dispatchEvent(new Event('authChanged'));
             router.push('/');
         } else {

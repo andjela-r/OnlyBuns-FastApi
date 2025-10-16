@@ -6,10 +6,12 @@ from app.db.session import get_db
 from app.security import get_current_user
 from app.models.user import User
 from app.models.post import Post
+from app.models.comment import Comment
 from app.models.like import Like
 from app.shemas.post import PostWLikes
 from datetime import datetime, timedelta
-from typing import Annotated
+from typing import Annotated, Dict
+from fastapi import APIRouter, Depends, HTTPException
 
 router = APIRouter()
 
@@ -102,3 +104,54 @@ def get_top_likers(
         })
 
     return results
+
+#ADMIN DEO
+
+@router.get("/admin_analytics")
+def get_admin_analytics(user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> Dict:
+    if not user.isadmin:
+        raise HTTPException(status_code=403, detail="Access forbidden: Admins only")
+
+    now = datetime.now()
+
+    one_week_ago = now - timedelta(days=7)
+    one_month_ago = now - timedelta(days=30)
+    one_year_ago = now - timedelta(days=365)
+
+    def count_posts_and_comments(since):
+        posts = db.query(func.count(Post.id)).filter(Post.timecreated >= since).scalar()
+        comments = db.query(func.count(Comment.id)).filter(Comment.timecreated >= since).scalar()
+        return {"posts": posts, "comments": comments}
+
+    weekly = count_posts_and_comments(one_week_ago)
+    monthly = count_posts_and_comments(one_month_ago)
+    yearly = count_posts_and_comments(one_year_ago)
+
+    total_users = db.query(func.count(User.id)).scalar()
+    users_with_posts = db.query(User.id).join(Post).distinct().count()
+    users_with_comments = db.query(User.id).join(Comment).distinct().count()
+    
+    only_comments = (
+        db.query(User.id)
+        .join(Comment)
+        .filter(~User.id.in_(db.query(Post.registereduserid)))
+        .distinct()
+        .count()
+    )
+
+    no_activity = total_users - users_with_posts - only_comments
+    if total_users > 0:
+        percentages = {
+            "made_posts": round((users_with_posts / total_users) * 100, 2),
+            "only_comments": round((only_comments / total_users) * 100, 2),
+            "inactive": round((no_activity / total_users) * 100, 2),
+        }
+    else:
+        percentages = {"made_posts": 0, "only_comments": 0, "inactive": 0}
+
+    return {
+        "weekly": weekly,
+        "monthly": monthly,
+        "yearly": yearly,
+        "percentages": percentages,
+    }

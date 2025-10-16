@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { User, NetworkStats } from "../types/Trends";
 import { Post } from "../types/Post";
@@ -53,8 +52,8 @@ export const getPopularPostsLast7Days = async (): Promise<Post[]> => {
       location_name: p.location_name || null,
       location: p.location || null,
       timecreated: p.timecreated || p.createdAt,
-      likes: p.likes?.length ?? p.like_count ?? 0,
-      comments: p.comments?.length ?? p.comment_count ?? 0,
+      likes_count: p.likes_count?.length ?? p.like_count ?? 0,
+      comments_count: p.comments_count?.length ?? p.comment_count ?? 0,
       isDeleted: p.isDeleted ?? false,
       isForAd: p.isForAd ?? false,
       forAd: p.forAd ?? false,
@@ -75,12 +74,12 @@ export const getTop10PostsAllTime = async (): Promise<Post[]> => {
       location_name: p.location_name || null,
       location: p.location || null,
       timecreated: p.timecreated || p.createdAt,
-      likes: p.likes?.length ?? p.like_count ?? 0,
-      comments: p.comments ?? 0,
+      likes_count: p.likes_count?.length ?? p.like_count ?? 0,
+      comments_count: p.comments_count ?? 0,
       isDeleted: p.isDeleted ?? false,
       isForAd: p.isForAd ?? false,
       forAd: p.forAd ?? false,
-      deleted: p.deleted ?? false,
+
     }));
   });
 };
@@ -96,7 +95,6 @@ export const getTopLikersLast7Days = async (): Promise<User[]> => {
     }));
   });
 };
-
 
 export function StatCard({ title, value }: { title: string; value: number | string }) {
   return (
@@ -131,8 +129,8 @@ function PublicPostFeedCard({ post }: { post: Post }) {
         </div>
       )}
       <div className="flex justify-between items-center text-gray-500 text-sm mb-4">
-        <span>{post.likes} Likes</span>
-        <span>{post.comments} Comments</span>
+        <span>{post.likes_count} Likes</span>
+        <span>{post.comments_count} Comments</span>
       </div>
     </div>
   );
